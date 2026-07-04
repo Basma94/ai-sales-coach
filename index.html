@@ -1092,14 +1092,9 @@ async function sendMessage(overrideText) {
   conversationHistory.push({ role: 'user', content: text });
   showTyping();
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('/.netlify/functions/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': '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',
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: SYSTEM_PROMPT, messages: conversationHistory })
     });
     if (!response.ok) { const err = await response.json().catch(()=>({})); throw new Error(err.error?.message || `API error ${response.status}`); }
@@ -1220,14 +1215,9 @@ async function callSimClaude({system, messages, tools, maxTokens}) {
   const body = { model: "claude-sonnet-4-6", max_tokens: maxTokens||1000, messages };
   if (system) body.system = system;
   if (tools) body.tools = tools;
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("/.netlify/functions/chat", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": "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",
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
   if (!res.ok) throw new Error("API error " + res.status);
