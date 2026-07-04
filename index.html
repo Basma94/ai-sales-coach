@@ -1,0 +1,1423 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Sales Coach — Vodafone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+ 
+:root {
+  --red: #E60000;
+  --red-dark: #B30000;
+  --red-soft: rgba(230,0,0,0.07);
+  --red-mid: rgba(230,0,0,0.14);
+  --bg: #F5F5F7;
+  --white: #FFFFFF;
+  --light: #F0F0F2;
+  --border: #E2E2E8;
+  --text-dark: #18181B;
+  --text-mid: #3F3F46;
+  --text-light: #6B6B72;
+  --text-muted: #A0A0AB;
+  --now: #166534;
+  --now-soft: rgba(22,101,52,0.08);
+  --next: #92400E;
+  --next-soft: rgba(146,64,14,0.08);
+  --later: #4C1D95;
+  --later-soft: rgba(76,29,149,0.08);
+  --sidebar-w: 220px;
+  --topbar-h: 52px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  --radius: 10px;
+}
+ 
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; color: var(--text-dark); background: var(--bg); }
+ 
+.app { display: flex; flex-direction: column; height: 100vh; }
+ 
+.topbar {
+  height: var(--topbar-h);
+  background: var(--red);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  flex-shrink: 0;
+  z-index: 300;
+  box-shadow: 0 2px 8px rgba(180,0,0,0.3);
+}
+.topbar-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.2px;
+}
+.topbar-brand span { font-weight: 400; font-size: 12px; opacity: 0.65; margin-left: 8px; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.live-dot { width: 6px; height: 6px; background: #4ADE80; border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+.live-label { font-size: 11px; color: rgba(255,255,255,0.75); font-weight: 500; }
+.clear-btn {
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+  color: white; font-size: 11px; font-weight: 600; font-family: 'Inter', sans-serif;
+  padding: 4px 12px; border-radius: 5px; cursor: pointer; transition: background 0.15s;
+  margin-left: 8px;
+}
+.clear-btn:hover { background: rgba(255,255,255,0.25); }
+#topbar-chat-controls { display: none; }
+ 
+.body-row { display: flex; flex: 1; overflow: hidden; }
+ 
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+ 
+.sidebar-header {
+  padding: 20px 18px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-header-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;
+}
+.sidebar-header-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px; font-weight: 700; color: var(--text-dark);
+}
+ 
+.nav-section { padding: 14px 10px 4px; }
+.nav-section-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--text-muted);
+  padding: 0 8px; margin-bottom: 4px;
+}
+ 
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 7px;
+  font-size: 12.5px; font-weight: 500; color: var(--text-mid);
+  cursor: pointer; transition: all 0.15s; margin-bottom: 1px;
+  border: none; background: none; width: 100%; text-align: left;
+  font-family: 'Inter', sans-serif;
+}
+.nav-item:hover { background: var(--light); color: var(--text-dark); }
+.nav-item.active { background: var(--red-soft); color: var(--red); font-weight: 600; }
+.nav-item.active .nav-icon { color: var(--red); }
+ 
+.nav-icon {
+  width: 16px; height: 16px; flex-shrink: 0; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-icon svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+ 
+.nav-badge {
+  margin-left: auto; font-size: 9px; font-weight: 700;
+  background: var(--red-soft); color: var(--red);
+  padding: 1px 7px; border-radius: 10px; letter-spacing: 0.04em;
+}
+.nav-badge.soon { background: var(--light); color: var(--text-muted); }
+ 
+.sidebar-divider { height: 1px; background: var(--border); margin: 8px 10px; }
+ 
+.main { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+ 
+.page { display: none; flex: 1; overflow-y: auto; flex-direction: column; }
+.page.active { display: flex; }
+.page-scroll { flex: 1; overflow-y: auto; }
+.page-scroll::-webkit-scrollbar { width: 4px; }
+.page-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+ 
+#page-coach { overflow: hidden; }
+#page-coach.active { display: flex; flex-direction: column; }
+#page-simulation { overflow: hidden; }
+#page-simulation.active { display: flex; flex-direction: column; }
+ 
+.page-hdr {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 32px 18px;
+  flex-shrink: 0;
+}
+.page-hdr-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--red); margin-bottom: 4px; }
+.page-hdr h2 { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+.page-hdr p { font-size: 13px; color: var(--text-light); }
+ 
+.content { padding: 28px 32px; }
+ 
+.sec-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 14px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+ 
+.vision-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-left: 4px solid var(--red); border-radius: var(--radius);
+  padding: 24px 28px; margin-bottom: 24px; box-shadow: var(--shadow);
+}
+.vision-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.vision-card p { font-size: 13.5px; color: var(--text-mid); line-height: 1.75; }
+ 
+.obj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.obj-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow);
+}
+.obj-title { font-weight: 700; font-size: 12.5px; color: var(--text-dark); margin-bottom: 4px; }
+.obj-desc { font-size: 11.5px; color: var(--text-light); line-height: 1.5; }
+.obj-tag {
+  display: inline-block; font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 2px 7px; border-radius: 3px; margin-bottom: 6px;
+}
+.obj-tag.business { background: var(--red-soft); color: var(--red); }
+.obj-tag.agent    { background: var(--now-soft);  color: var(--now); }
+.obj-tag.ops      { background: var(--next-soft); color: var(--next); }
+ 
+.phase-hdr { display: flex; align-items: center; gap: 12px; margin: 28px 0 16px; }
+.phase-pill {
+  font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 12px; border-radius: 4px;
+}
+.phase-pill.now   { background: var(--now-soft);   color: var(--now); }
+.phase-pill.next  { background: var(--next-soft);  color: var(--next); }
+.phase-pill.later { background: var(--later-soft); color: var(--later); }
+.phase-name { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-dark); }
+.phase-time { margin-left: auto; font-size: 11px; color: var(--text-muted); background: var(--light); padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); }
+ 
+.cap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 4px; }
+.cap-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  box-shadow: var(--shadow); transition: box-shadow 0.18s;
+  display: flex; flex-direction: column;
+}
+.cap-card:hover { box-shadow: var(--shadow-md); }
+.cap-hdr { padding: 14px 18px 10px; border-bottom: 1px solid var(--light); }
+.cap-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.cap-desc { font-size: 11.5px; color: var(--text-light); line-height: 1.5; }
+.cap-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.cap-lbl { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; }
+.cap-q { font-size: 11.5px; color: var(--now); font-style: italic; line-height: 1.5; }
+.cap-q.nxt { color: var(--next); }
+.cap-q.ltr { color: var(--later); }
+.feat-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.feat-list li { font-size: 11.5px; color: var(--text-mid); padding-left: 12px; position: relative; line-height: 1.45; }
+.feat-list li::before { content: '–'; position: absolute; left: 0; color: var(--red); font-weight: 700; }
+.metric-list { display: flex; flex-direction: column; gap: 4px; }
+.metric-row { display: flex; align-items: flex-start; gap: 7px; font-size: 11.5px; color: var(--text-mid); }
+.mdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.mdot.now { background: var(--now); }
+.mdot.nxt { background: var(--next); }
+.mdot.ltr { background: var(--later); }
+ 
+.risk-block {
+  margin-top: 32px; background: var(--white); border: 1px solid var(--border);
+  border-left: 4px solid #C0392B; border-radius: var(--radius);
+  padding: 24px 28px; box-shadow: var(--shadow);
+}
+.risk-block h3 { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 18px; }
+.risk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.risk-card { background: var(--light); border: 1px solid var(--border); border-radius: 8px; padding: 13px 15px; }
+.risk-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.risk-title { font-weight: 700; font-size: 12px; }
+.risk-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 3px; }
+.risk-badge.high { background: rgba(192,57,43,0.12); color: #C0392B; }
+.risk-badge.med  { background: rgba(146,64,14,0.12);  color: var(--next); }
+.risk-desc { font-size: 11px; color: var(--text-mid); line-height: 1.5; margin-bottom: 8px; }
+.risk-mit { font-size: 10.5px; color: var(--text-light); padding-top: 8px; border-top: 1px solid var(--border); }
+.risk-mit strong { color: var(--text-mid); font-weight: 600; }
+ 
+.placeholder-page {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; flex: 1; padding: 60px 32px; text-align: center;
+}
+.placeholder-icon {
+  width: 56px; height: 56px; background: var(--light); border: 1px solid var(--border);
+  border-radius: 14px; display: flex; align-items: center; justify-content: center;
+  margin-bottom: 18px;
+}
+.placeholder-icon svg { width: 26px; height: 26px; stroke: var(--text-muted); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.placeholder-page h3 { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--text-dark); }
+.placeholder-page p { font-size: 13px; color: var(--text-light); max-width: 380px; line-height: 1.65; margin-bottom: 20px; }
+.placeholder-tag {
+  background: var(--next-soft); color: var(--next);
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(146,64,14,0.15);
+}
+.placeholder-tag.soon { background: var(--now-soft); color: var(--now); border-color: rgba(22,101,52,0.15); }
+ 
+.score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
+.score-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow);
+  text-align: center;
+}
+.score-val { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; color: var(--text-dark); line-height: 1; margin-bottom: 4px; }
+.score-val.good { color: var(--now); }
+.score-val.warn { color: var(--next); }
+.score-val.red  { color: var(--red); }
+.score-lbl { font-size: 11.5px; color: var(--text-light); margin-bottom: 8px; }
+.score-delta { font-size: 11px; font-weight: 600; }
+.score-delta.up   { color: var(--now); }
+.score-delta.down { color: var(--red); }
+ 
+.table-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px; }
+.table-card table { width: 100%; border-collapse: collapse; }
+.table-card th { background: var(--light); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-muted); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+.table-card td { padding: 10px 16px; font-size: 12.5px; color: var(--text-mid); border-bottom: 1px solid var(--light); }
+.table-card tr:last-child td { border-bottom: none; }
+.table-card tr:hover td { background: var(--light); }
+.agent-name { font-weight: 600; color: var(--text-dark); }
+.bar-wrap { height: 6px; background: var(--light); border-radius: 3px; overflow: hidden; width: 80px; display: inline-block; }
+.bar-fill { height: 100%; border-radius: 3px; background: var(--now); }
+.bar-fill.mid { background: var(--next); }
+.bar-fill.low { background: var(--red); }
+.status-pill { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+.status-pill.on-track { background: var(--now-soft); color: var(--now); }
+.status-pill.at-risk  { background: var(--next-soft); color: var(--next); }
+.status-pill.needs-coaching { background: rgba(192,57,43,0.1); color: #C0392B; }
+ 
+.chat-layout { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+ 
+.chat-sidebar {
+  width: 240px; flex-shrink: 0; background: var(--white);
+  border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto;
+}
+.chat-sidebar::-webkit-scrollbar { width: 3px; }
+.chat-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+ 
+.csb-section { padding: 14px 14px 8px; border-bottom: 1px solid var(--border); }
+.csb-lbl { font-size: 9px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+ 
+.qbtn {
+  width: 100%; text-align: left; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 7px; padding: 7px 10px; font-size: 11.5px; font-weight: 500;
+  color: var(--text-mid); cursor: pointer; font-family: 'Inter', sans-serif;
+  line-height: 1.4; margin-bottom: 4px; transition: all 0.15s;
+}
+.qbtn:hover { background: var(--red-soft); border-color: var(--red-mid); color: var(--red-dark); }
+.qbtn:last-child { margin-bottom: 0; }
+ 
+.ev-card { margin: 0 12px 10px; background: var(--red-soft); border: 1px solid var(--red-mid); border-radius: 8px; padding: 10px 12px; }
+.ev-title { font-size: 9px; font-weight: 700; color: var(--red); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+.ev-item { font-size: 11px; color: var(--text-mid); padding: 3px 0; border-bottom: 1px solid rgba(230,0,0,0.08); line-height: 1.4; display: flex; gap: 5px; }
+.ev-item:last-child { border-bottom: none; padding-bottom: 0; }
+.ev-item::before { content: '·'; color: var(--red); flex-shrink: 0; }
+.csb-footer { padding: 12px 14px; margin-top: auto; border-top: 1px solid var(--border); }
+.csb-footer p { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
+ 
+.chat-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+ 
+.messages { flex: 1; overflow-y: auto; padding: 20px 28px; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
+.messages::-webkit-scrollbar { width: 4px; }
+.messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+ 
+.welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 32px; text-align: center; }
+.welcome-icon { width: 52px; height: 52px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(230,0,0,0.22); }
+.welcome-icon svg { width: 24px; height: 24px; stroke: white; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.welcome h3 { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.welcome p { font-size: 13px; color: var(--text-light); max-width: 360px; line-height: 1.6; margin-bottom: 20px; }
+.chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 460px; }
+.chip {
+  background: var(--white); border: 1px solid var(--border); border-radius: 20px;
+  padding: 6px 14px; font-size: 12px; font-weight: 500; color: var(--text-mid);
+  cursor: pointer; transition: all 0.15s; box-shadow: var(--shadow);
+}
+.chip:hover { background: var(--red-soft); border-color: var(--red-mid); color: var(--red-dark); transform: translateY(-1px); }
+ 
+.msg-row { display: flex; gap: 10px; align-items: flex-start; animation: fadeUp 0.2s ease; }
+.msg-row.user { flex-direction: row-reverse; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);} }
+ 
+.msg-av {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-weight: 700; font-size: 11px;
+}
+.msg-av.coach { background: var(--red); box-shadow: 0 2px 8px rgba(230,0,0,0.2); }
+.msg-av.coach svg { width: 15px; height: 15px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.msg-av.user { background: var(--text-dark); color: white; font-family: 'Space Grotesk', sans-serif; }
+ 
+.msg-col { max-width: 68%; display: flex; flex-direction: column; gap: 3px; }
+.msg-row.user .msg-col { align-items: flex-end; }
+.msg-name { font-size: 10px; font-weight: 600; color: var(--text-muted); padding: 0 3px; }
+ 
+.bubble {
+  padding: 11px 15px; font-size: 13.5px; line-height: 1.65;
+  box-shadow: var(--shadow); word-break: break-word;
+}
+.bubble.coach {
+  background: var(--white); border: 1px solid var(--border); color: var(--text-dark);
+  border-radius: 3px 12px 12px 12px;
+}
+.bubble.user {
+  background: var(--red); color: white;
+  border-radius: 12px 3px 12px 12px;
+}
+.bubble.coach strong { font-weight: 700; color: var(--red-dark); }
+.bubble.coach em { font-style: italic; color: var(--text-mid); }
+.bubble.coach p { margin-bottom: 6px; }
+.bubble.coach p:last-child { margin-bottom: 0; }
+.bubble.coach ul, .bubble.coach ol { padding-left: 16px; margin: 5px 0; display: flex; flex-direction: column; gap: 3px; }
+.bubble.coach li { font-size: 13px; line-height: 1.5; }
+ 
+.typing-row { display: flex; gap: 10px; align-items: flex-start; }
+.typing-bbl { background: var(--white); border: 1px solid var(--border); border-radius: 3px 12px 12px 12px; padding: 12px 14px; display: flex; gap: 4px; align-items: center; box-shadow: var(--shadow); }
+.tdot { width: 6px; height: 6px; background: var(--red); border-radius: 50%; animation: tbounce 1.2s infinite; opacity: 0.5; }
+.tdot:nth-child(2){animation-delay:0.2s;} .tdot:nth-child(3){animation-delay:0.4s;}
+@keyframes tbounce{0%,60%,100%{transform:translateY(0);opacity:0.5;}30%{transform:translateY(-5px);opacity:1;}}
+ 
+.input-area { background: var(--white); border-top: 1px solid var(--border); padding: 12px 20px 14px; flex-shrink: 0; }
+.input-row { display: flex; gap: 8px; align-items: flex-end; max-width: 800px; margin: 0 auto; }
+.input-wrap {
+  flex: 1; background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 11px; padding: 8px 13px; transition: border-color 0.15s;
+  display: flex; align-items: flex-end;
+}
+.input-wrap:focus-within { border-color: var(--red); background: var(--white); box-shadow: 0 0 0 3px rgba(230,0,0,0.07); }
+#chat-input {
+  flex: 1; border: none; background: transparent; outline: none;
+  font-family: 'Inter', sans-serif; font-size: 13.5px; color: var(--text-dark);
+  resize: none; max-height: 100px; min-height: 20px; line-height: 1.5;
+}
+#chat-input::placeholder { color: var(--text-muted); }
+.send-btn {
+  width: 34px; height: 34px; background: var(--red); border: none; border-radius: 9px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.15s; box-shadow: 0 2px 8px rgba(230,0,0,0.25);
+}
+.send-btn:hover { background: var(--red-dark); transform: translateY(-1px); }
+.send-btn:disabled { background: var(--text-muted); box-shadow: none; cursor: not-allowed; transform: none; }
+.send-btn svg { width: 14px; height: 14px; fill: white; }
+.input-hint { text-align: center; font-size: 10px; color: var(--text-muted); margin-top: 5px; }
+ 
+.err-bubble { background: #FEF2F2; border: 1px solid #FECACA; border-radius: 10px; padding: 10px 14px; font-size: 12.5px; color: #991B1B; }
+
+/* ── SALES SIMULATION (new) ── */
+.sim-topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 10px 32px; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.sim-stepper { display: flex; gap: 6px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+.sim-stepper .seg.active { color: var(--red); }
+.sim-stepper .seg.done { color: var(--now); }
+.sim-stepper .sep { opacity: 0.4; }
+.sim-callpill { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; color: var(--text-muted); padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; background: var(--light); }
+.sim-callpill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); }
+.sim-callpill.live { color: var(--now); border-color: rgba(22,101,52,.25); background: var(--now-soft); }
+.sim-callpill.live .dot { background: var(--now); animation: pulse 1.4s infinite; }
+
+.sim-scroll { flex: 1; overflow-y: auto; }
+.sim-content { padding: 24px 32px 60px; max-width: 760px; }
+.sim-view { display: none; }
+.sim-view.active { display: block; }
+
+.persona-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 700px) { .persona-grid { grid-template-columns: 1fr; } }
+.persona-card { text-align: left; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; cursor: pointer; box-shadow: var(--shadow); transition: box-shadow .15s, transform .15s; display: flex; flex-direction: column; gap: 10px; font-family: 'Inter', sans-serif; }
+.persona-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.persona-card .ptag { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); border: 1px solid var(--border); padding: 3px 8px; border-radius: 20px; width: fit-content; }
+.persona-card .picon { width: 34px; height: 34px; border-radius: 9px; background: var(--red-soft); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.persona-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; }
+.persona-card p { font-size: 12px; color: var(--text-light); line-height: 1.5; margin: 0; }
+.persona-card .pgo { font-size: 11px; font-weight: 700; color: var(--red); margin-top: auto; }
+
+.sim-field { margin-bottom: 14px; }
+.sim-field label { display: block; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+.sim-field input[type=text], .sim-field select, .sim-field textarea { width: 100%; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-dark); outline: none; }
+.sim-field input:focus, .sim-field select:focus, .sim-field textarea:focus { border-color: var(--red); }
+
+.sim-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.sim-chip { font-size: 11.5px; font-weight: 600; padding: 7px 13px; border-radius: 20px; border: 1px solid var(--border); background: var(--white); color: var(--text-mid); cursor: pointer; box-shadow: var(--shadow); font-family: 'Inter', sans-serif; }
+.sim-chip.selected { border-color: var(--red); color: var(--red-dark); background: var(--red-soft); }
+
+.sim-btn { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13px; border: none; border-radius: 9px; padding: 11px 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.sim-btn-primary { background: var(--red); color: #fff; box-shadow: 0 2px 8px rgba(230,0,0,.25); }
+.sim-btn-primary:hover:not(:disabled) { background: var(--red-dark); }
+.sim-btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+.sim-btn-ghost { background: var(--white); color: var(--text-mid); border: 1px solid var(--border); }
+.sim-back { font-size: 11px; font-weight: 600; color: var(--text-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 16px; }
+.sim-back:hover { color: var(--text-dark); }
+
+.sim-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 60px 20px; color: var(--text-light); font-size: 12px; }
+.sim-ring { width: 42px; height: 42px; border-radius: 50%; border: 2.5px solid var(--border); border-top-color: var(--red); animation: simspin .9s linear infinite; }
+@keyframes simspin { to { transform: rotate(360deg); } }
+
+.sim-dossier { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 18px; box-shadow: var(--shadow); }
+.sim-dossier-head { padding: 16px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; background: var(--light); }
+.sim-dossier-head .sdname { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; }
+.sim-dossier-head .sdmeta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+.sim-dossier-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+.sim-dossier-row .sdk { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--red); margin-bottom: 5px; }
+.sim-dossier-row .sdv { font-size: 13px; line-height: 1.6; color: var(--text-dark); }
+.sim-dossier-row ul { margin: 3px 0 0; padding-left: 16px; }
+.sim-dossier-row li { margin-bottom: 4px; font-size: 13px; line-height: 1.5; }
+
+.sim-context { font-size: 11.5px; color: var(--text-mid); margin-bottom: 12px; }
+.sim-context b { color: var(--text-dark); }
+.sim-chatbox { background: var(--light); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; height: 360px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.sim-bubble { max-width: 76%; padding: 9px 13px; font-size: 13px; line-height: 1.5; box-shadow: var(--shadow); }
+.sim-bubble.customer { align-self: flex-start; background: var(--white); border: 1px solid var(--border); border-radius: 3px 12px 12px 12px; }
+.sim-bubble.agent { align-self: flex-end; background: var(--red); color: #fff; border-radius: 12px 3px 12px 12px; }
+.sim-bubble .swho { font-size: 9px; letter-spacing: .06em; text-transform: uppercase; opacity: .65; margin-bottom: 3px; display: block; }
+.sim-typing { display: flex; gap: 4px; align-self: flex-start; padding: 9px 13px; }
+.sim-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); animation: tbounce 1.2s infinite; }
+.sim-typing span:nth-child(2) { animation-delay: .2s; } .sim-typing span:nth-child(3) { animation-delay: .4s; }
+.sim-composer { display: flex; gap: 8px; margin-top: 12px; }
+.sim-composer textarea { flex: 1; resize: none; height: 46px; padding: 12px; border-radius: 9px; border: 1px solid var(--border); font-family: 'Inter', sans-serif; font-size: 13px; outline: none; }
+.sim-composer textarea:focus { border-color: var(--red); }
+.sim-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+
+.sim-score-hero { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; margin-bottom: 24px; }
+.sim-gauge { position: relative; width: 130px; height: 130px; flex-shrink: 0; }
+.sim-gauge svg { transform: rotate(-90deg); }
+.sim-gauge-num { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.sim-gauge-num .n { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 30px; }
+.sim-gauge-num .l { font-size: 9px; color: var(--text-muted); letter-spacing: .06em; text-transform: uppercase; }
+.sim-outcome { font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
+.sim-outcome.sold { background: var(--now-soft); color: var(--now); }
+.sim-outcome.callback, .sim-outcome.escalated { background: var(--next-soft); color: var(--next); }
+.sim-outcome.declined { background: var(--red-soft); color: var(--red); }
+
+.sim-cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px; }
+@media (max-width: 700px) { .sim-cat-grid { grid-template-columns: 1fr; } }
+.sim-cat-card { background: var(--white); border: 1px solid var(--border); border-radius: 9px; padding: 13px 15px; box-shadow: var(--shadow); }
+.sim-cat-card .top { display: flex; justify-content: space-between; margin-bottom: 7px; }
+.sim-cat-card .name { font-size: 11px; color: var(--text-mid); font-weight: 600; }
+.sim-cat-card .val { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; }
+.sim-bar-track { height: 6px; background: var(--light); border-radius: 20px; overflow: hidden; border: 1px solid var(--border); }
+.sim-bar-fill { height: 100%; background: var(--red); border-radius: 20px; transition: width .6s ease; }
+
+.sim-review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px; }
+@media (max-width: 700px) { .sim-review-grid { grid-template-columns: 1fr; } }
+.sim-review-col { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+.sim-review-col .rk { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; margin-bottom: 8px; }
+.sim-review-col.str .rk { color: var(--now); }
+.sim-review-col.mis .rk { color: var(--next); }
+.sim-review-col ul { margin: 0; padding-left: 16px; }
+.sim-review-col li { font-size: 12.5px; line-height: 1.5; margin-bottom: 5px; color: var(--text-dark); }
+
+.sim-next { background: var(--light); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 22px; }
+.sim-next .nk { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--red); margin-bottom: 8px; }
+.sim-next p { margin: 0; font-size: 13px; line-height: 1.6; color: var(--text-dark); }
+
+.sim-err { background: #FEF2F2; border: 1px solid #FECACA; border-radius: 10px; padding: 10px 14px; font-size: 12.5px; color: #991B1B; margin-bottom: 14px; }
+
+.sim-btn-ghost.voice-on { color: var(--now); border-color: rgba(22,101,52,.3); background: var(--now-soft); }
+.sim-btn-ghost#simMicBtn { padding: 11px 14px; }
+.sim-btn-ghost#simMicBtn.listening { color: #fff; background: var(--red); border-color: var(--red); animation: micpulse 1.2s infinite; }
+@keyframes micpulse { 0%,100% { box-shadow: 0 0 0 0 rgba(230,0,0,.4); } 50% { box-shadow: 0 0 0 6px rgba(230,0,0,0); } }
+.sim-speaking-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--red); margin-left: 6px; animation: micpulse 1s infinite; vertical-align: middle; }
+</style>
+</head>
+<body>
+<div class="app">
+ 
+  <div class="topbar">
+    <div class="topbar-brand">Vodafone <span>AI Sales Coach</span></div>
+    <div class="topbar-right">
+      <div id="topbar-chat-controls" style="display: flex;">
+        <div class="live-dot"></div>
+        <span class="live-label">Coach Live</span>
+        <button class="clear-btn" onclick="clearChat()">New chat</button>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="body-row">
+ 
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-header-label">Navigation</div>
+        <div class="sidebar-header-title">AI Sales Coach</div>
+      </div>
+ 
+      <div class="nav-section">
+        <div class="nav-section-label">Agent Tools</div>
+        <button class="nav-item active" onclick="showPage('coach', this)">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
+          Sales Coach
+          <span class="nav-badge">Live</span>
+        </button>
+        <button class="nav-item" onclick="showPage('simulation', this)">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></span>
+          Sales Simulation
+          <span class="nav-badge">Preview</span>
+        </button>
+        <button class="nav-item" onclick="showPage('whisper', this)">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></span>
+          Sales Whisper
+          <span class="nav-badge soon">Soon</span>
+        </button>
+      </div>
+ 
+      <div class="sidebar-divider"></div>
+ 
+      <div class="nav-section">
+        <div class="nav-section-label">Performance</div>
+        <button class="nav-item" onclick="showPage('scorecard', this)">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></span>
+          Scorecard
+        </button>
+        <button class="nav-item" onclick="showPage('dashboard', this)">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></span>
+          Team Dashboard
+        </button>
+      </div>
+    </nav>
+ 
+    <div class="main">
+ 
+      <div id="page-coach" class="page active" style="display: flex;">
+        <div class="page-hdr">
+          <div class="page-hdr-eyebrow">Agent Tool · Live</div>
+          <h2>Sales Coach</h2>
+          <p>Ask anything — objections, competitor comparisons, closing techniques, or how to use evidence mid-call.</p>
+        </div>
+        <div class="chat-layout">
+          <div class="chat-sidebar">
+            <div class="csb-section">
+              <div class="csb-lbl">Quick Scenarios</div>
+              <button class="qbtn" onclick="sendQ(this)">Customer says it's too expensive</button>
+              <button class="qbtn" onclick="sendQ(this)">They think EE has a better network</button>
+              <button class="qbtn" onclick="sendQ(this)">Bad experience with Vodafone before</button>
+              <button class="qbtn" onclick="sendQ(this)">They said "I'll think about it"</button>
+              <button class="qbtn" onclick="sendQ(this)">O2 is offering them a cheaper deal</button>
+              <button class="qbtn" onclick="sendQ(this)">Business customer needs reliability</button>
+              <button class="qbtn" onclick="sendQ(this)">Customer travels a lot — worried about roaming</button>
+              <button class="qbtn" onclick="sendQ(this)">How do I close a deal that's going cold?</button>
+            </div>
+            <div class="csb-section">
+              <div class="csb-lbl">Techniques</div>
+              <button class="qbtn" onclick="sendQ(this)">Explain Feel, Felt, Found with an example</button>
+              <button class="qbtn" onclick="sendQ(this)">How does the Boomerang technique work?</button>
+              <button class="qbtn" onclick="sendQ(this)">Walk me through the Conditional Close</button>
+            </div>
+            <div class="csb-section" style="border-bottom:none;padding-bottom:0;">
+              <div class="csb-lbl">Evidence Bank</div>
+            </div>
+            <div class="ev-card">
+              <div class="ev-title">Network</div>
+              <div class="ev-item">RootMetrics H2 2024: Vodafone #2 UK (85.3/100 — biggest improvement)</div>
+              <div class="ev-item">NET CHECK 2026: #1 London network — 3rd year running</div>
+              <div class="ev-item">99%+ 4G population coverage UK-wide</div>
+            </div>
+            <div class="ev-card">
+              <div class="ev-title">Complaints</div>
+              <div class="ev-item">Ofcom: O2 most complained mobile provider Q2, Q3 & Q4 2024</div>
+              <div class="ev-item">Vodafone: 8/100k customers — below industry avg of 12</div>
+            </div>
+            <div class="ev-card">
+              <div class="ev-title">Awards</div>
+              <div class="ev-item">Best Network for Business — MIA 2024 & 2025</div>
+              <div class="ev-item">Broadband Provider of the Year — Expert Reviews 2025 & 2026</div>
+              <div class="ev-item">Best Customer Service — Expert Reviews 2025</div>
+            </div>
+            <div class="ev-card">
+              <div class="ev-title">Value</div>
+              <div class="ev-item">Vodafone Together: up to £636 savings (mobile + broadband)</div>
+              <div class="ev-item">Roaming in 84 destinations on Pay Monthly</div>
+              <div class="ev-item">Up to £200 switching credit for broadband</div>
+            </div>
+            <div class="csb-footer">
+              <p>Powered by verified Ofcom, RootMetrics & Vodafone data. Always confirm current offers before quoting.</p>
+            </div>
+          </div>
+ 
+          <div class="chat-main">
+            <div class="messages" id="messages">
+              <div class="welcome" id="welcome-screen">
+                <div class="welcome-icon">
+                  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                </div>
+                <h3>Voda Coach</h3>
+                <p>Your AI sales coach for Vodafone UK telesales. Ask anything — objections, competitor comparisons, closing techniques, or evidence to use mid-call.</p>
+                <div class="chip-wrap">
+                  <div class="chip" onclick="sendChip(this)">How do I handle a price objection?</div>
+                  <div class="chip" onclick="sendChip(this)">Customer prefers EE — what do I say?</div>
+                  <div class="chip" onclick="sendChip(this)">Best way to close a hesitant customer</div>
+                  <div class="chip" onclick="sendChip(this)">What are Vodafone's strongest selling points?</div>
+                  <div class="chip" onclick="sendChip(this)">Customer mentions a bad past experience</div>
+                  <div class="chip" onclick="sendChip(this)">Business customer needing reliability</div>
+                </div>
+              </div>
+            </div>
+            <div class="input-area">
+              <div class="input-row">
+                <div class="input-wrap">
+                  <textarea id="chat-input" placeholder="Ask anything — objections, techniques, competitor rebuttals..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)" style="height: 20px;"></textarea>
+                </div>
+                <button class="send-btn" id="send-btn" onclick="sendMessage()" title="Send">
+                  <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                </button>
+              </div>
+              <div class="input-hint">Enter to send · Shift+Enter for new line</div>
+            </div>
+          </div>
+        </div>
+      </div>
+ 
+      <div id="page-simulation" class="page" style="display: none;">
+        <div class="page-hdr">
+          <div class="page-hdr-eyebrow">Agent Tool · Preview</div>
+          <h2>Sales Simulation</h2>
+          <p>Practice a live AI-played customer, then get a scored assessment the moment the call ends.</p>
+        </div>
+        <div class="sim-topbar">
+          <div class="sim-stepper" id="simStepper"></div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="sim-btn sim-btn-ghost voice-on" id="simVoiceToggle" onclick="toggleSimVoice()">🔊 Voice on</button>
+            <div class="sim-callpill" id="simCallPill"><span class="dot"></span><span id="simCallPillText">No active call</span></div>
+          </div>
+        </div>
+        <div class="sim-scroll">
+          <div class="sim-content">
+
+            <div class="sim-view active" id="sim-view-persona">
+              <div class="persona-grid">
+                <button class="persona-card" onclick="choosePersona('am')">
+                  <span class="ptag">B2B · Relationship</span>
+                  <div class="picon">🏢</div>
+                  <h3>Account Manager</h3>
+                  <p>Practice a real client meeting. Tell us the customer and what you're selling — we'll brief you on the company first, just like before a real call.</p>
+                  <span class="pgo">Start as Account Manager →</span>
+                </button>
+                <button class="persona-card" onclick="choosePersona('ts')">
+                  <span class="ptag">B2C · High volume</span>
+                  <div class="picon">📞</div>
+                  <h3>Telesales Agent</h3>
+                  <p>Practice a consumer call — price objections, competitor loyalty, or a frustrated customer. Pick a scenario and go straight to the call.</p>
+                  <span class="pgo">Start as Telesales Agent →</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="sim-view" id="sim-view-am-form">
+              <div class="sim-back" onclick="simGoTo('persona')">← Change role</div>
+              <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;margin-bottom:4px;">Who are you meeting, and what are you selling?</h3>
+              <p style="font-size:12.5px;color:var(--text-light);margin-bottom:16px;">We'll pull a short, current briefing on the company so you walk in prepared.</p>
+              <div class="sim-field"><label for="amCompany">Customer / company name</label>
+                <input type="text" id="amCompany" placeholder="e.g. Whitbread, Halfords, a local NHS trust..."></div>
+              <div class="sim-field"><label for="amOffer">What are you selling them?</label>
+                <select id="amOffer">
+                  <option value="">Select an offering</option>
+                  <option>Enterprise connectivity & SD-WAN</option>
+                  <option>5G private network / IoT</option>
+                  <option>Cloud & cyber security services</option>
+                  <option>Unified communications (fixed + mobile)</option>
+                  <option>Mobile fleet contract renewal & upgrade</option>
+                  <option>Managed IT & device lifecycle</option>
+                </select></div>
+              <button class="sim-btn sim-btn-primary" onclick="generateBrief()">Generate company brief →</button>
+            </div>
+
+            <div class="sim-view" id="sim-view-am-loading">
+              <div class="sim-loading"><div class="sim-ring"></div><div>Researching company &amp; drafting your briefing…</div></div>
+            </div>
+
+            <div class="sim-view" id="sim-view-am-brief">
+              <div class="sim-back" onclick="simGoTo('am-form')">← Edit details</div>
+              <h3 id="simBriefHeading" style="font-family:'Space Grotesk',sans-serif;font-size:16px;margin-bottom:4px;">Briefing</h3>
+              <p style="font-size:12.5px;color:var(--text-light);margin-bottom:14px;">Review before you walk into the room — generated live, sense-check anything mission-critical.</p>
+              <div id="simBriefError"></div>
+              <div class="sim-dossier" id="simDossierCard"></div>
+              <button class="sim-btn sim-btn-primary" onclick="startSimulation()">Start simulation meeting →</button>
+            </div>
+
+            <div class="sim-view" id="sim-view-ts-form">
+              <div class="sim-back" onclick="simGoTo('persona')">← Change role</div>
+              <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;margin-bottom:4px;">Set up your practice call</h3>
+              <p style="font-size:12.5px;color:var(--text-light);margin-bottom:16px;">Choose a customer scenario and what you're selling.</p>
+              <div class="sim-field"><label>Customer scenario</label>
+                <div class="sim-chip-row" id="tsScenarioChips">
+                  <div class="sim-chip" data-val="price-sensitive">Price-sensitive</div>
+                  <div class="sim-chip" data-val="angry">Frustrated / complaint</div>
+                  <div class="sim-chip" data-val="competitor-loyal">Competitor-loyal (EE / VMO2 / Three)</div>
+                  <div class="sim-chip" data-val="undecided">Undecided, open to upsell</div>
+                </div></div>
+              <div class="sim-field"><label for="tsOffer">What are you selling?</label>
+                <select id="tsOffer">
+                  <option value="">Select a product</option>
+                  <option>SIM-only plan</option>
+                  <option>Handset upgrade</option>
+                  <option>Broadband + mobile bundle</option>
+                  <option>Family / multi-line plan</option>
+                  <option>Add-on: device insurance & entertainment</option>
+                </select></div>
+              <button class="sim-btn sim-btn-primary" onclick="startSimulation()">Start simulation call →</button>
+            </div>
+
+            <div class="sim-view" id="sim-view-sim">
+              <div class="sim-context" id="simContext"></div>
+              <div class="sim-chatbox" id="simChatBox"></div>
+              <div class="sim-composer">
+                <textarea id="simComposerInput" placeholder="Type what you'd say to the customer…"></textarea>
+                <button class="sim-btn sim-btn-ghost" id="simMicBtn" onclick="toggleSimMic()" title="Speak instead of typing">🎤</button>
+                <button class="sim-btn sim-btn-primary" id="simSendBtn" onclick="sendSimTurn()">Send</button>
+              </div>
+              <div class="sim-actions">
+                <span style="font-size:11px;color:var(--text-muted);" id="simTurnCounter">0 exchanges</span>
+                <button class="sim-btn sim-btn-ghost" onclick="endSimCall()">End call &amp; get score →</button>
+              </div>
+            </div>
+
+            <div class="sim-view" id="sim-view-score-loading">
+              <div class="sim-loading"><div class="sim-ring"></div><div>Scoring the call…</div></div>
+            </div>
+
+            <div class="sim-view" id="sim-view-score">
+              <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;margin-bottom:16px;">How the call went</h3>
+              <div id="simScoreError"></div>
+              <div class="sim-score-hero">
+                <div class="sim-gauge">
+                  <svg width="130" height="130" viewBox="0 0 130 130">
+                    <circle cx="65" cy="65" r="55" fill="none" stroke="#EAEAEE" stroke-width="9"></circle>
+                    <circle id="simGaugeCircle" cx="65" cy="65" r="55" fill="none" stroke="#E60000" stroke-width="9" stroke-linecap="round" stroke-dasharray="346" stroke-dashoffset="346"></circle>
+                  </svg>
+                  <div class="sim-gauge-num"><span class="n" id="simGaugeNum">0</span><span class="l">/ 100</span></div>
+                </div>
+                <div><span class="sim-outcome" id="simOutcomeBadge">—</span>
+                  <p id="simScoreSummary" style="max-width:44ch;font-size:13px;line-height:1.6;color:var(--text-light);margin:0;"></p></div>
+              </div>
+              <div class="sim-cat-grid" id="simCatGrid"></div>
+              <div class="sim-review-grid">
+                <div class="sim-review-col str"><div class="rk" style="color:var(--now);">What worked</div><ul id="simStrengthsList"></ul></div>
+                <div class="sim-review-col mis"><div class="rk" style="color:var(--next);">Missed moments</div><ul id="simMissedList"></ul></div>
+              </div>
+              <div class="sim-next"><div class="nk">Coaching note</div><p id="simNextStepsText"></p></div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="sim-btn sim-btn-primary" onclick="resetSim()">New simulation</button>
+                <button class="sim-btn sim-btn-ghost" onclick="restartSamePersona()">Retry same scenario</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+ 
+      <div id="page-whisper" class="page" style="display: none;">
+        <div class="page-hdr">
+          <div class="page-hdr-eyebrow">Agent Tool · Coming Soon</div>
+          <h2>Sales Whisper</h2>
+          <p>Real-time AI guidance pushed silently to your screen during a live call.</p>
+        </div>
+        <div class="page-scroll">
+          <div class="content">
+            <div class="placeholder-page">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>
+              </div>
+              <h3>Sales Whisper</h3>
+              <p>AI listens to your live call, understands the context in real time, and silently surfaces suggested responses, competitor rebuttals, and offer prompts — without the customer hearing.</p>
+              <div class="placeholder-tag">In Roadmap · Next Phase (6 – 12 months)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+ 
+      <div id="page-scorecard" class="page" style="display: none;">
+        <div class="page-hdr">
+          <div class="page-hdr-eyebrow">Performance · Agent View</div>
+          <h2>Scorecard</h2>
+          <p>Your personal performance metrics for the current period. Updated daily.</p>
+        </div>
+        <div class="page-scroll">
+          <div class="content">
+            <div class="sec-label">This Month — July 2026</div>
+            <div class="score-grid">
+              <div class="score-card"><div class="score-val good">73%</div><div class="score-lbl">Conversion Rate</div><div class="score-delta up">+6% vs last month</div></div>
+              <div class="score-card"><div class="score-val">142</div><div class="score-lbl">Calls Handled</div><div class="score-delta up">+12 vs last month</div></div>
+              <div class="score-card"><div class="score-val warn">4.2</div><div class="score-lbl">Avg Handle Time (min)</div><div class="score-delta down">+0.3 vs target</div></div>
+              <div class="score-card"><div class="score-val good">91%</div><div class="score-lbl">Compliance Score</div><div class="score-delta up">+3% vs last month</div></div>
+              <div class="score-card"><div class="score-val good">4.6</div><div class="score-lbl">CSAT Score (out of 5)</div><div class="score-delta up">+0.2 vs last month</div></div>
+              <div class="score-card"><div class="score-val warn">38%</div><div class="score-lbl">Objection Win Rate</div><div class="score-delta down">−4% vs last month</div></div>
+            </div>
+ 
+            <div class="sec-label">Top Objections This Month</div>
+            <div class="table-card">
+              <table>
+                <thead><tr><th>Objection Type</th><th>Times Encountered</th><th>Win Rate</th><th>Trend</th></tr></thead>
+                <tbody>
+                  <tr><td>Price / Too Expensive</td><td>34</td><td><span class="score-delta warn">41%</span></td><td><span class="score-delta down">Declining</span></td></tr>
+                  <tr><td>Network Quality (EE)</td><td>22</td><td><span class="score-delta up">68%</span></td><td><span class="score-delta up">Improving</span></td></tr>
+                  <tr><td>Competitor Price (O2)</td><td>18</td><td><span class="score-delta up">55%</span></td><td><span class="score-delta up">Stable</span></td></tr>
+                  <tr><td>Bad Past Experience</td><td>11</td><td><span class="score-delta down">27%</span></td><td><span class="score-delta down">Needs Work</span></td></tr>
+                  <tr><td>I'll Think About It</td><td>29</td><td><span class="score-delta warn">44%</span></td><td><span class="score-delta warn">Stable</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+ 
+            <div class="sec-label">Coach Recommendations</div>
+            <div class="vision-card" style="border-left-color:var(--next);">
+              <h3>Focus Areas This Month</h3>
+              <p style="margin-bottom:12px;">Based on your call data, your coach has identified two priority areas:</p>
+              <ul style="padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text-mid);">
+                <li><strong style="color:var(--text-dark);">Bad Past Experience handling</strong> — Your win rate is 27%, well below the team average of 48%. The Acknowledge, Clarify, Respond technique is recommended. Practice available in Sales Simulation.</li>
+                <li><strong style="color:var(--text-dark);">Closing on Price objections</strong> — You're encountering this most frequently but winning only 41%. Focus on the Reframe and Compare technique — shift from defending price to total value comparison.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+ 
+      <div id="page-dashboard" class="page" style="display: none;">
+        <div class="page-hdr">
+          <div class="page-hdr-eyebrow">Performance · Manager View</div>
+          <h2>Team Dashboard</h2>
+          <p>Real-time overview of team performance, coaching priorities, and conversion health. Updated daily.</p>
+        </div>
+        <div class="page-scroll">
+          <div class="content">
+            <div class="sec-label">Team Summary — July 2026</div>
+            <div class="score-grid">
+              <div class="score-card"><div class="score-val good">68%</div><div class="score-lbl">Team Avg Conversion</div><div class="score-delta up">+4% vs last month</div></div>
+              <div class="score-card"><div class="score-val">18</div><div class="score-lbl">Active Agents</div><div class="score-delta up">All active this week</div></div>
+              <div class="score-card"><div class="score-val warn">3</div><div class="score-lbl">Agents Needing Coaching</div><div class="score-delta down">Below threshold</div></div>
+              <div class="score-card"><div class="score-val good">89%</div><div class="score-lbl">Avg Compliance Score</div><div class="score-delta up">+2% vs last month</div></div>
+              <div class="score-card"><div class="score-val good">4.4</div><div class="score-lbl">Avg CSAT Score</div><div class="score-delta up">+0.1 vs last month</div></div>
+              <div class="score-card"><div class="score-val red">12%</div><div class="score-lbl">Escalation Rate</div><div class="score-delta down">+2% — monitor</div></div>
+            </div>
+ 
+            <div class="sec-label">Agent Performance — This Month</div>
+            <div class="table-card">
+              <table>
+                <thead><tr><th>Agent</th><th>Calls</th><th>Conversion</th><th>CSAT</th><th>Compliance</th><th>Coach Priority</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="agent-name">Sarah Mitchell</span></td><td>156</td><td>81% <div class="bar-wrap"><div class="bar-fill" style="width:81%"></div></div></td><td>4.8</td><td>97%</td><td>None</td><td><span class="status-pill on-track">On Track</span></td></tr>
+                  <tr><td><span class="agent-name">James Okafor</span></td><td>143</td><td>76% <div class="bar-wrap"><div class="bar-fill" style="width:76%"></div></div></td><td>4.6</td><td>94%</td><td>None</td><td><span class="status-pill on-track">On Track</span></td></tr>
+                  <tr><td><span class="agent-name">Priya Sharma</span></td><td>138</td><td>73% <div class="bar-wrap"><div class="bar-fill" style="width:73%"></div></div></td><td>4.5</td><td>91%</td><td>None</td><td><span class="status-pill on-track">On Track</span></td></tr>
+                  <tr><td><span class="agent-name">Tom Reynolds</span></td><td>129</td><td>61% <div class="bar-wrap"><div class="bar-fill mid" style="width:61%"></div></div></td><td>4.1</td><td>88%</td><td>Price handling</td><td><span class="status-pill at-risk">At Risk</span></td></tr>
+                  <tr><td><span class="agent-name">Aisha Malik</span></td><td>124</td><td>58% <div class="bar-wrap"><div class="bar-fill mid" style="width:58%"></div></div></td><td>3.9</td><td>85%</td><td>Closing technique</td><td><span class="status-pill at-risk">At Risk</span></td></tr>
+                  <tr><td><span class="agent-name">Dan Cooper</span></td><td>118</td><td>44% <div class="bar-wrap"><div class="bar-fill low" style="width:44%"></div></div></td><td>3.6</td><td>79%</td><td>Multiple areas</td><td><span class="status-pill needs-coaching">Needs Coaching</span></td></tr>
+                  <tr><td><span class="agent-name">Fatima Hassan</span></td><td>134</td><td>69% <div class="bar-wrap"><div class="bar-fill" style="width:69%"></div></div></td><td>4.3</td><td>92%</td><td>None</td><td><span class="status-pill on-track">On Track</span></td></tr>
+                  <tr><td><span class="agent-name">Marcus Lee</span></td><td>141</td><td>72% <div class="bar-wrap"><div class="bar-fill" style="width:72%"></div></div></td><td>4.4</td><td>90%</td><td>None</td><td><span class="status-pill on-track">On Track</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+ 
+            <div class="sec-label">Top Objections Across Team — July 2026</div>
+            <div class="table-card">
+              <table>
+                <thead><tr><th>Objection</th><th>Volume</th><th>Team Win Rate</th><th>Top Performer</th></tr></thead>
+                <tbody>
+                  <tr><td>Price / Too Expensive</td><td>287</td><td><span class="score-delta warn">49%</span></td><td>Sarah Mitchell (71%)</td></tr>
+                  <tr><td>Competitor Price (O2 / EE)</td><td>184</td><td><span class="score-delta up">61%</span></td><td>James Okafor (78%)</td></tr>
+                  <tr><td>Network Quality Doubts</td><td>152</td><td><span class="score-delta up">64%</span></td><td>Priya Sharma (80%)</td></tr>
+                  <tr><td>Bad Past Experience</td><td>94</td><td><span class="score-delta down">38%</span></td><td>Sarah Mitchell (59%)</td></tr>
+                  <tr><td>I'll Think About It</td><td>211</td><td><span class="score-delta warn">42%</span></td><td>Marcus Lee (61%)</td></tr>
+                </tbody>
+              </table>
+            </div>
+ 
+            <div class="sec-label">Manager Coaching Priorities</div>
+            <div class="risk-grid">
+              <div class="risk-card"><div class="risk-top"><div class="risk-title">Dan Cooper</div><span class="risk-badge high">Urgent</span></div><div class="risk-desc">Conversion at 44% — 24 points below team average. Compliance at 79% — below minimum threshold. Recommend immediate 1:1 and assigned simulation sessions.</div><div class="risk-mit"><strong>Focus:</strong> Objection handling fundamentals + compliance refresher</div></div>
+              <div class="risk-card"><div class="risk-top"><div class="risk-title">Aisha Malik</div><span class="risk-badge med">This Week</span></div><div class="risk-desc">Closing rate declining for second consecutive month. Strong on building rapport but losing at the final close stage.</div><div class="risk-mit"><strong>Focus:</strong> Conditional Close technique + simulation on "I'll think about it"</div></div>
+              <div class="risk-card"><div class="risk-top"><div class="risk-title">Tom Reynolds</div><span class="risk-badge med">This Week</span></div><div class="risk-desc">Price objection win rate at 31% vs team average of 49%. Strong elsewhere — targeted coaching likely to resolve quickly.</div><div class="risk-mit"><strong>Focus:</strong> Reframe and Compare technique for price objections</div></div>
+            </div>
+ 
+          </div>
+        </div>
+      </div>
+ 
+    </div>
+  </div>
+</div>
+ 
+<script>
+function showPage(pageId, btn) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
+  btn.classList.add('active');
+  const pg = document.getElementById('page-' + pageId);
+  if (pageId === 'coach') {
+    pg.style.display = 'flex';
+    pg.classList.add('active');
+    document.getElementById('topbar-chat-controls').style.display = 'flex';
+    setTimeout(() => document.getElementById('chat-input').focus(), 100);
+  } else {
+    pg.style.display = 'flex';
+    pg.classList.add('active');
+    document.getElementById('topbar-chat-controls').style.display = 'none';
+  }
+}
+ 
+window.addEventListener('load', () => {
+  document.querySelectorAll('.page').forEach(p => { p.style.display = 'none'; });
+  const cv = document.getElementById('page-coach');
+  cv.style.display = 'flex';
+  cv.classList.add('active');
+});
+ 
+const SYSTEM_PROMPT = `You are Voda Coach, an expert AI sales coach for Vodafone UK's telesales and customer service teams. You have deep knowledge of:
+ 
+VODAFONE UK STRENGTHS (verified data):
+- RootMetrics H2 2024: Vodafone ranked #2 UK overall with score 85.3/100 — the BIGGEST improvement of any UK network (up from 79.1 in H1 2024)
+- NET CHECK 2026: Vodafone rated #1 mobile network in London for 3rd consecutive year (957.73/1,000)
+- 4G coverage: 99%+ UK population
+- 5G: 71% UK population coverage by end 2025, targeting 99% by 2030
+- Post-Three merger: Vodafone is now part of the UK's largest combined 4G/5G network
+- Vodafone Together bundle: families save up to £636 over 24-month contract (mobile + broadband)
+- Roaming: included in up to 84 destinations on Pay Monthly plans
+- Switching credit: up to £200 for broadband customers leaving other providers
+- Trustpilot: 4.4/5 (127,000+ reviews)
+ 
+AWARDS:
+- Best Network for Business: Mobile Industry Awards 2024 AND 2025
+- Broadband Provider of the Year: Expert Reviews 2025 AND 2026
+- Best Customer Service: Expert Reviews 2025 (62% satisfaction — highest of all major providers)
+- Most Popular Broadband Provider: Uswitch 2025
+- Microsoft Telco Innovation Partner of the Year 2025
+ 
+COMPETITOR INTELLIGENCE:
+- EE: #1 overall in RootMetrics (91.7/100) — be honest, do not claim Vodafone beats EE overall on speed. EE is most complained-about LANDLINE provider (Ofcom Q2 2024).
+- O2: Most complained-about MOBILE provider — Ofcom Q2, Q3, AND Q4 2024. Ranked last (4th) in RootMetrics H2 2024 (76.7/100). Median download speed 29Mbps vs Vodafone 49.9Mbps.
+- Three: Now merged with Vodafone — do NOT position as a competitor.
+- Vodafone complaint rate: 8 per 100,000 customers — BELOW industry average of 12.
+ 
+OBJECTION HANDLING TECHNIQUES:
+1. Feel, Felt, Found — Empathy first: "I understand how you feel, others have felt the same, what they found was..."
+2. Acknowledge, Clarify, Respond (ACR) — Do not assume the real objection. Ask a clarifying question first.
+3. Boomerang — Turn the objection into the reason to buy.
+4. Proof & Social Proof — Use real data: Ofcom stats, RootMetrics, awards, Trustpilot.
+5. Reframe & Compare — Shift from price-per-month to total value delivered.
+6. Pre-emption — Raise the objection before the customer does to build trust.
+7. Conditional Close — "If I could show you X, would you go ahead today?"
+8. The Pause — Silence after a close is powerful. Let the customer respond.
+ 
+YOUR COACHING STYLE:
+- Be direct and practical — agents need answers they can use in the next 30 seconds
+- Always combine technique with evidence — never just theory
+- Give real suggested scripts they can adapt naturally, not read verbatim
+- Flag what NOT to say as much as what to say
+- Be honest about Vodafone weaknesses (EE leads on raw speed) — credibility comes from honesty
+- Keep responses conversational but substantive
+- Use bold for key phrases, bullet points for scripts and evidence to make responses scannable
+- End with one sharp coaching tip or word of encouragement
+- Never make up statistics`;
+ 
+let conversationHistory = [];
+let isLoading = false;
+ 
+function getTime() { return new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); }
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function sendQ(btn) { sendMessage(btn.textContent.trim()); }
+function sendChip(chip) { sendMessage(chip.textContent.trim()); }
+function hideWelcome() { const w = document.getElementById('welcome-screen'); if (w) w.remove(); }
+function scrollBottom() { const m = document.getElementById('messages'); m.scrollTop = m.scrollHeight; }
+function escHtml(t) { return t.replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>'); }
+ 
+function fmtResponse(text) {
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  const lines = text.split('\n');
+  let html = '', inList = false;
+  for (let line of lines) {
+    const bm = line.match(/^[-•*]\s+(.*)/);
+    const nm = line.match(/^\d+\.\s+(.*)/);
+    if (bm || nm) {
+      if (!inList) { html += '<ul>'; inList = true; }
+      html += '<li>' + (bm ? bm[1] : nm[1]) + '</li>';
+    } else {
+      if (inList) { html += '</ul>'; inList = false; }
+      const tr = line.trim();
+      if (tr) html += '<p style="margin-bottom:5px;">' + tr + '</p>';
+    }
+  }
+  if (inList) html += '</ul>';
+  return html;
+}
+ 
+function addUserMsg(text) {
+  hideWelcome();
+  const msgs = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'msg-row user';
+  row.innerHTML = `<div class="msg-col"><div class="msg-name">You · ${getTime()}</div><div class="bubble user">${escHtml(text)}</div></div><div class="msg-av user">ME</div>`;
+  msgs.appendChild(row); scrollBottom();
+}
+ 
+function showTyping() {
+  const msgs = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'typing-row'; row.id = 'typing';
+  row.innerHTML = `<div class="msg-av coach"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="typing-bbl"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
+  msgs.appendChild(row); scrollBottom();
+}
+ 
+function removeTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+ 
+function addCoachMsg(text) {
+  removeTyping();
+  const msgs = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.innerHTML = `<div class="msg-av coach"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="msg-col"><div class="msg-name">Voda Coach · ${getTime()}</div><div class="bubble coach">${fmtResponse(text)}</div></div>`;
+  msgs.appendChild(row); scrollBottom();
+}
+ 
+function addErrMsg(msg) {
+  removeTyping();
+  const msgs = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.innerHTML = `<div class="msg-av coach"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="msg-col"><div class="err-bubble">${escHtml(msg)}</div></div>`;
+  msgs.appendChild(row); scrollBottom();
+}
+ 
+async function sendMessage(overrideText) {
+  if (isLoading) return;
+  const input = document.getElementById('chat-input');
+  const text = (overrideText || input.value).trim();
+  if (!text) return;
+  if (!overrideText) { input.value = ''; input.style.height = 'auto'; }
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+  addUserMsg(text);
+  conversationHistory.push({ role: 'user', content: text });
+  showTyping();
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': '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',
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: SYSTEM_PROMPT, messages: conversationHistory })
+    });
+    if (!response.ok) { const err = await response.json().catch(()=>({})); throw new Error(err.error?.message || `API error ${response.status}`); }
+    const data = await response.json();
+    const reply = data.content?.[0]?.text || 'No response received.';
+    conversationHistory.push({ role: 'assistant', content: reply });
+    addCoachMsg(reply);
+  } catch (err) {
+    conversationHistory.pop();
+    addErrMsg('Something went wrong: ' + err.message);
+  } finally {
+    isLoading = false;
+    document.getElementById('send-btn').disabled = false;
+    document.getElementById('chat-input').focus();
+  }
+}
+ 
+function clearChat() {
+  conversationHistory = [];
+  document.getElementById('messages').innerHTML = `<div class="welcome" id="welcome-screen"><div class="welcome-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><h3>Voda Coach</h3><p>Your AI sales coach for Vodafone UK telesales. Ask anything — objections, competitor comparisons, closing techniques, or evidence to use mid-call.</p><div class="chip-wrap"><div class="chip" onclick="sendChip(this)">How do I handle a price objection?</div><div class="chip" onclick="sendChip(this)">Customer prefers EE — what do I say?</div><div class="chip" onclick="sendChip(this)">Best way to close a hesitant customer</div><div class="chip" onclick="sendChip(this)">What are Vodafone's strongest selling points?</div></div></div>`;
+}
+
+/* ══════════════ SALES SIMULATION (new, no key needed) ══════════════ */
+const simState = {
+  persona: null, amCompany: '', amOffer: '', tsScenario: '', tsOffer: '',
+  brief: null, transcript: [], customerPersonaPrompt: ''
+};
+
+/* ── VOICE: text-to-speech for the AI customer ── */
+let simVoiceEnabled = true;
+let simVoicesCache = [];
+function loadSimVoices() { if (window.speechSynthesis) simVoicesCache = window.speechSynthesis.getVoices(); }
+if (window.speechSynthesis) {
+  loadSimVoices();
+  window.speechSynthesis.onvoiceschanged = loadSimVoices;
+}
+function toggleSimVoice() {
+  simVoiceEnabled = !simVoiceEnabled;
+  const btn = document.getElementById('simVoiceToggle');
+  btn.textContent = simVoiceEnabled ? '🔊 Voice on' : '🔇 Voice off';
+  btn.classList.toggle('voice-on', simVoiceEnabled);
+  if (!simVoiceEnabled && window.speechSynthesis) window.speechSynthesis.cancel();
+}
+function speakAsCustomer(text) {
+  if (!simVoiceEnabled || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  const ukVoice = simVoicesCache.find(v => v.lang === 'en-GB') || simVoicesCache.find(v => v.lang && v.lang.startsWith('en'));
+  if (ukVoice) utter.voice = ukVoice;
+  utter.rate = 1.0;
+  utter.pitch = 1.0;
+  window.speechSynthesis.speak(utter);
+}
+
+/* ── VOICE: speech-to-text for the agent's mic ── */
+let simRecognition = null;
+let simListening = false;
+function toggleSimMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert("Voice input isn't supported in this browser. Try Chrome or Edge, or just type instead."); return; }
+  if (location.protocol === 'file:') {
+    alert("Voice input doesn't work when this page is opened directly from a file (file:// address). Serve it from a local web server (e.g. http://localhost) or a hosted URL, then try the mic again.");
+    return;
+  }
+  const btn = document.getElementById('simMicBtn');
+  if (simListening) { simRecognition && simRecognition.stop(); return; }
+  simRecognition = new SR();
+  simRecognition.lang = 'en-GB';
+  simRecognition.continuous = false;
+  simRecognition.interimResults = false;
+  simRecognition.onstart = () => { simListening = true; btn.classList.add('listening'); btn.textContent = '●'; };
+  simRecognition.onend = () => { simListening = false; btn.classList.remove('listening'); btn.textContent = '🎤'; };
+  simRecognition.onerror = (e) => {
+    simListening = false; btn.classList.remove('listening'); btn.textContent = '🎤';
+    const messages = {
+      'not-allowed': "Microphone access is blocked. Click the lock/site-info icon in the address bar, allow Microphone for this site, then try again.",
+      'service-not-allowed': "Microphone access is blocked. Click the lock/site-info icon in the address bar, allow Microphone for this site, then try again.",
+      'no-speech': "No speech detected — try again and speak after pressing the mic.",
+      'audio-capture': "No microphone was found. Check that a mic is connected and try again.",
+      'network': "Speech recognition needs an internet connection. Check your connection and try again."
+    };
+    alert(messages[e.error] || ("Voice input error: " + e.error));
+  };
+  simRecognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    const input = document.getElementById('simComposerInput');
+    input.value = (input.value ? input.value.trim() + ' ' : '') + transcript;
+  };
+  simRecognition.start();
+}
+const SIM_STEPS = { am: ['Role','Prep','Brief','Simulation','Score'], ts: ['Role','Setup','Simulation','Score'] };
+
+function renderSimStepper(active) {
+  const flow = simState.persona === 'ts' ? SIM_STEPS.ts : SIM_STEPS.am;
+  document.getElementById('simStepper').innerHTML = flow.map((label,i)=>{
+    const isActive=i===active, isDone=i<active;
+    return `<span class="seg ${isActive?'active':''} ${isDone?'done':''}">${label}</span>` + (i<flow.length-1?'<span class="sep">/</span>':'');
+  }).join('');
+}
+function simGoTo(id) {
+  document.querySelectorAll('.sim-view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('sim-view-'+id).classList.add('active');
+}
+function choosePersona(p) {
+  simState.persona = p;
+  if (p==='am') { renderSimStepper(1); simGoTo('am-form'); }
+  else {
+    renderSimStepper(1);
+    document.querySelectorAll('#tsScenarioChips .sim-chip').forEach(c=>{
+      c.onclick = ()=>{ document.querySelectorAll('#tsScenarioChips .sim-chip').forEach(x=>x.classList.remove('selected'));
+        c.classList.add('selected'); simState.tsScenario = c.dataset.val; };
+    });
+    simGoTo('ts-form');
+  }
+}
+
+async function callSimClaude({system, messages, tools, maxTokens}) {
+  const body = { model: "claude-sonnet-4-6", max_tokens: maxTokens||1000, messages };
+  if (system) body.system = system;
+  if (tools) body.tools = tools;
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": "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",
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error("API error " + res.status);
+  const data = await res.json();
+  return (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
+}
+function extractSimJson(text) {
+  let t = text.trim().replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+  const s = t.indexOf('{'), e = t.lastIndexOf('}');
+  if (s>=0 && e>s) t = t.slice(s,e+1);
+  return JSON.parse(t);
+}
+
+async function generateBrief() {
+  const company = document.getElementById('amCompany').value.trim();
+  const offer = document.getElementById('amOffer').value;
+  if (!company || !offer) { alert("Add a company name and select what you're selling."); return; }
+  simState.amCompany = company; simState.amOffer = offer;
+  renderSimStepper(2); simGoTo('am-loading');
+  document.getElementById('simBriefError').innerHTML = '';
+  try {
+    const system = `You are a research assistant for a Vodafone Business account manager preparing for a client meeting. Return ONLY valid JSON, no markdown fences, no preamble. Be concise, factual, and current. If you are not confident about a specific detail, say so plainly rather than inventing it.`;
+    const userMsg = `Company: ${company}\nVodafone is selling them: ${offer}\n\nResearch this company using web search and return JSON with this exact shape:\n{\n  "company_summary": "2-3 sentences on what the company does and its scale/sector",\n  "recent_developments": ["2-3 short bullet points on recent news, expansion, leadership changes, or challenges"],\n  "relevant_needs": ["2-3 bullet points on why this company would plausibly need the offering, tied to their sector/situation"],\n  "talking_point": "one sharp, specific opening line or hook the account manager could use, referencing something real about the company",\n  "confidence_note": "one short sentence flagging if information is limited or well-documented"\n}`;
+    const raw = await callSimClaude({ system, messages:[{role:'user', content:userMsg}], tools:[{type:"web_search_20250305", name:"web_search"}], maxTokens:1400 });
+    const brief = extractSimJson(raw);
+    simState.brief = brief;
+    renderSimBrief(company, offer, brief);
+    renderSimStepper(2); simGoTo('am-brief');
+  } catch(e) {
+    document.getElementById('simBriefError').innerHTML = `<div class="sim-err">Couldn't generate the briefing (${e.message}). You can try again, or start the simulation without one.</div>`;
+    simState.brief = null; renderSimBrief(company, offer, null); simGoTo('am-brief');
+  }
+}
+function renderSimBrief(company, offer, brief) {
+  document.getElementById('simBriefHeading').textContent = company;
+  const card = document.getElementById('simDossierCard');
+  if (!brief) { card.innerHTML = `<div class="sim-dossier-body"><div class="sim-dossier-row"><div class="sdv">No briefing available — proceed to the simulation and rely on your own prep.</div></div></div>`; return; }
+  card.innerHTML = `
+    <div class="sim-dossier-head"><div><div class="sdname">${company}</div><div class="sdmeta">Selling: ${offer}</div></div>
+      <span style="border:1px solid var(--border);padding:4px 9px;border-radius:100px;font-size:9.5px;color:var(--text-muted);">Live briefing</span></div>
+    <div class="sim-dossier-body">
+      <div class="sim-dossier-row"><div class="sdk">Overview</div><div class="sdv">${brief.company_summary||''}</div></div>
+      <div class="sim-dossier-row"><div class="sdk">Recent developments</div><ul>${(brief.recent_developments||[]).map(x=>`<li>${x}</li>`).join('')}</ul></div>
+      <div class="sim-dossier-row"><div class="sdk">Why this offering fits</div><ul>${(brief.relevant_needs||[]).map(x=>`<li>${x}</li>`).join('')}</ul></div>
+      <div class="sim-dossier-row"><div class="sdk">Suggested opening line</div><div class="sdv" style="font-style:italic;">"${brief.talking_point||''}"</div></div>
+      ${brief.confidence_note?`<div class="sim-dossier-row"><div class="sdk">Note</div><div class="sdv" style="color:var(--text-light);font-size:12.5px;">${brief.confidence_note}</div></div>`:''}
+    </div>`;
+}
+
+function buildSimCustomerPrompt() {
+  if (simState.persona==='am') {
+    return `You are roleplaying as a business decision-maker (e.g. IT director, procurement lead, or operations head) at "${simState.amCompany}" in a live meeting with a Vodafone Business account manager who is pitching: ${simState.amOffer}.
+${simState.brief?`Context you may draw on naturally (don't recite it verbatim): ${JSON.stringify(simState.brief)}`:''}
+Stay fully in character as the customer only — never break character, never mention you are an AI, never offer coaching. Be realistic: ask real business questions, raise reasonable objections (budget, timing, existing contracts, integration risk, ROI), and only warm up if the agent earns it with good questions, relevant proof points, or a clear value case. Keep each reply to 1-4 sentences, like real spoken dialogue.`;
+  }
+  const scenarioText = {
+    'price-sensitive':"You are very focused on price and will push back hard on cost, comparing to cheaper alternatives, unless the agent clearly justifies value.",
+    'angry':"You are frustrated about a past billing or service issue and start the call annoyed. You need to feel heard before you'll listen to any offer.",
+    'competitor-loyal':"You are currently happy with a competitor (EE, VMO2, or Three) and are skeptical about switching. You need a genuinely compelling reason.",
+    'undecided':"You are open-minded but unsure what you need. You're receptive to a good upsell if the agent listens and tailors the pitch."
+  }[simState.tsScenario] || "You are a typical consumer customer.";
+  return `You are roleplaying as a UK consumer customer on a live telesales call. A Vodafone telesales agent is trying to sell you: ${simState.tsOffer}.
+Scenario: ${scenarioText}
+Stay fully in character as the customer only — never break character, never mention you are an AI, never offer coaching. Speak like a real person on the phone: casual, occasionally interrupts, asks practical questions. Keep each reply to 1-3 sentences.`;
+}
+
+function startSimulation() {
+  simState.transcript = []; simState.customerPersonaPrompt = buildSimCustomerPrompt();
+  renderSimStepper(simState.persona==='am'?3:2);
+  document.getElementById('simChatBox').innerHTML = '';
+  document.getElementById('simTurnCounter').textContent = '0 exchanges';
+  const ctx = simState.persona==='am'
+    ? `Meeting with <b>${simState.amCompany}</b> · Selling: <b>${simState.amOffer}</b>`
+    : `Scenario: <b>${(simState.tsScenario||'general').replace('-',' ')}</b> · Selling: <b>${simState.tsOffer}</b>`;
+  document.getElementById('simContext').innerHTML = ctx;
+  document.getElementById('simCallPill').classList.add('live');
+  document.getElementById('simCallPillText').textContent = 'Call in progress';
+  simGoTo('sim');
+  const opener = simState.persona==='am' ? "Thanks for coming in — I've got about fifteen minutes. Go ahead." : "Hello?";
+  addSimBubble('customer', opener);
+  simState.transcript.push({role:'customer', text:opener});
+  speakAsCustomer(opener);
+  document.getElementById('simComposerInput').focus();
+}
+function addSimBubble(who, text) {
+  const box = document.getElementById('simChatBox');
+  const b = document.createElement('div');
+  b.className = 'sim-bubble ' + (who==='customer'?'customer':'agent');
+  b.innerHTML = `<span class="swho">${who==='customer'?'Customer':'You'}</span>${text.replace(/</g,'&lt;')}`;
+  box.appendChild(b); box.scrollTop = box.scrollHeight;
+}
+function showSimTyping() {
+  const box = document.getElementById('simChatBox');
+  const t = document.createElement('div'); t.className='sim-typing'; t.id='simTypingIndicator';
+  t.innerHTML='<span></span><span></span><span></span>'; box.appendChild(t); box.scrollTop = box.scrollHeight;
+}
+function hideSimTyping() { const t = document.getElementById('simTypingIndicator'); if (t) t.remove(); }
+
+async function sendSimTurn() {
+  const input = document.getElementById('simComposerInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  document.getElementById('simSendBtn').disabled = true;
+  addSimBubble('agent', text); simState.transcript.push({role:'agent', text});
+  showSimTyping();
+  try {
+    const messages = simState.transcript.map(t=>({role: t.role==='agent'?'user':'assistant', content: t.text}));
+    const reply = await callSimClaude({ system: simState.customerPersonaPrompt, messages, maxTokens: 300 });
+    hideSimTyping(); addSimBubble('customer', reply); simState.transcript.push({role:'customer', text:reply});
+    speakAsCustomer(reply);
+    document.getElementById('simTurnCounter').textContent = Math.ceil(simState.transcript.length/2) + ' exchanges';
+  } catch(e) {
+    hideSimTyping(); addSimBubble('customer', "[connection issue — try sending that again]");
+  } finally {
+    document.getElementById('simSendBtn').disabled = false; input.focus();
+  }
+}
+document.getElementById('simComposerInput').addEventListener('keydown', (e)=>{
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendSimTurn(); }
+});
+
+async function endSimCall() {
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  if (simListening && simRecognition) simRecognition.stop();
+  document.getElementById('simCallPill').classList.remove('live');
+  document.getElementById('simCallPillText').textContent = 'Call ended';
+  renderSimStepper(simState.persona==='am'?4:3);
+  simGoTo('score-loading');
+  document.getElementById('simScoreError').innerHTML = '';
+  try {
+    const transcriptText = simState.transcript.map(t=>`${t.role==='agent'?'Agent':'Customer'}: ${t.text}`).join('\n');
+    const context = simState.persona==='am'
+      ? `Persona: Account Manager. Customer: ${simState.amCompany}. Offering: ${simState.amOffer}.`
+      : `Persona: Telesales Agent. Scenario: ${simState.tsScenario}. Offering: ${simState.tsOffer}.`;
+    const system = `You are a Vodafone sales call quality assessor. Score the agent's performance in this simulated call. Be honest and specific — do not default to high scores. Return ONLY valid JSON, no markdown fences.`;
+    const userMsg = `${context}\n\nTranscript:\n${transcriptText}\n\nReturn JSON with this exact shape:\n{\n  "overall_score": 0-100 integer,\n  "outcome": "Sold" | "Callback" | "Escalated" | "Declined",\n  "summary": "one sentence overall verdict",\n  "categories": {\n    "rapport_discovery": 0-100 integer,\n    "objection_handling": 0-100 integer,\n    "product_knowledge": 0-100 integer,\n    "compliance_tone": 0-100 integer,\n    "closing": 0-100 integer\n  },\n  "strengths": ["2-4 short specific bullet points, quoting or referencing actual moments"],\n  "missed_moments": ["2-4 short specific bullet points on what was missed or could improve"],\n  "coaching_note": "2-3 sentences of direct, actionable coaching for next time"\n}`;
+    const raw = await callSimClaude({ system, messages:[{role:'user', content:userMsg}], maxTokens: 1200 });
+    const score = extractSimJson(raw);
+    renderSimScore(score);
+    renderSimStepper(simState.persona==='am'?4:3);
+    simGoTo('score');
+  } catch(e) {
+    document.getElementById('simScoreError').innerHTML = `<div class="sim-err">Couldn't generate a score (${e.message}). You can retry the scenario.</div>`;
+    simGoTo('score');
+  }
+}
+function renderSimScore(score) {
+  const overall = Math.max(0, Math.min(100, Math.round(score.overall_score||0)));
+  const circumference = 2*Math.PI*55;
+  const offset = circumference - (overall/100)*circumference;
+  const circle = document.getElementById('simGaugeCircle');
+  circle.style.strokeDasharray = circumference; circle.style.strokeDashoffset = circumference;
+  setTimeout(()=>{ circle.style.transition = 'stroke-dashoffset 1s ease'; circle.style.strokeDashoffset = offset; }, 50);
+  const color = overall>=75 ? '#166534' : overall>=50 ? '#92400E' : '#E60000';
+  circle.setAttribute('stroke', color);
+  document.getElementById('simGaugeNum').textContent = overall;
+  const outcome = (score.outcome||'Callback').toLowerCase();
+  const badge = document.getElementById('simOutcomeBadge');
+  badge.textContent = score.outcome || 'Callback';
+  badge.className = 'sim-outcome ' + (outcome.includes('sold')?'sold':outcome.includes('declin')?'declined':outcome.includes('escal')?'escalated':'callback');
+  document.getElementById('simScoreSummary').textContent = score.summary || '';
+  const cats = score.categories || {};
+  const labels = {rapport_discovery:'Rapport & discovery', objection_handling:'Objection handling', product_knowledge:'Product knowledge', compliance_tone:'Compliance & tone', closing:'Closing'};
+  document.getElementById('simCatGrid').innerHTML = Object.keys(labels).map(k=>{
+    const v = Math.max(0,Math.min(100,Math.round(cats[k]||0)));
+    return `<div class="sim-cat-card"><div class="top"><span class="name">${labels[k]}</span><span class="val">${v}</span></div><div class="sim-bar-track"><div class="sim-bar-fill" style="width:${v}%"></div></div></div>`;
+  }).join('');
+  document.getElementById('simStrengthsList').innerHTML = (score.strengths||[]).map(s=>`<li>${s}</li>`).join('') || '<li>—</li>';
+  document.getElementById('simMissedList').innerHTML = (score.missed_moments||[]).map(s=>`<li>${s}</li>`).join('') || '<li>—</li>';
+  document.getElementById('simNextStepsText').textContent = score.coaching_note || '';
+}
+function restartSamePersona() {
+  simGoTo(simState.persona==='am'?'am-brief':'ts-form');
+  renderSimStepper(simState.persona==='am'?2:1);
+  if (simState.persona==='am' && simState.brief) renderSimBrief(simState.amCompany, simState.amOffer, simState.brief);
+}
+function resetSim() {
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  if (simListening && simRecognition) simRecognition.stop();
+  simState.persona=null; simState.amCompany=''; simState.amOffer=''; simState.tsScenario=''; simState.tsOffer='';
+  simState.brief=null; simState.transcript=[];
+  document.getElementById('amCompany').value=''; document.getElementById('amOffer').value=''; document.getElementById('tsOffer').value='';
+  document.querySelectorAll('#tsScenarioChips .sim-chip').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('simCallPill').classList.remove('live');
+  document.getElementById('simCallPillText').textContent = 'No active call';
+  renderSimStepper(0); simGoTo('persona');
+}
+renderSimStepper(0);
+</script>
+ 
+ 
+</body></html>
