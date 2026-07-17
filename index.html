@@ -236,7 +236,10 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; f
 .risk-title { font-weight: 700; font-size: 12px; }
 .risk-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 3px; }
 .risk-badge.high { background: rgba(192,57,43,0.12); color: #C0392B; }
+.risk-badge.medhigh { background: rgba(192,87,43,0.12); color: #C0572B; }
 .risk-badge.med  { background: rgba(146,64,14,0.12);  color: var(--next); }
+.battlecard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+@media (max-width: 900px) { .battlecard-grid { grid-template-columns: 1fr; } }
 .risk-desc { font-size: 11px; color: var(--text-mid); line-height: 1.5; margin-bottom: 8px; }
 .risk-mit { font-size: 10.5px; color: var(--text-light); padding-top: 8px; border-top: 1px solid var(--border); }
 .risk-mit strong { color: var(--text-mid); font-weight: 600; }
@@ -555,11 +558,6 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; f
           Sales Simulation
           <span class="nav-badge">Preview</span>
         </button>
-        <button class="nav-item" onclick="showPage('whisper', this)">
-          <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></span>
-          Sales Whisper
-          <span class="nav-badge soon">Soon</span>
-        </button>
       </div>
  
       <div class="sidebar-divider"></div>
@@ -568,7 +566,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; f
         <div class="nav-section-label">Performance</div>
         <button class="nav-item" onclick="showPage('scorecard', this)">
           <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></span>
-          Scorecard
+          Monthly Battle Card
         </button>
         <button class="nav-item" onclick="showPage('dashboard', this)">
           <span class="nav-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></span>
@@ -806,71 +804,134 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; f
         </div>
       </div>
  
-      <div id="page-whisper" class="page" style="display: none;">
-        <div class="page-hdr">
-          <div class="page-hdr-eyebrow">Agent Tool · Coming Soon</div>
-          <h2>Sales Whisper</h2>
-          <p>Real-time AI guidance pushed silently to your screen during a live call.</p>
-        </div>
-        <div class="page-scroll">
-          <div class="content">
-            <div class="placeholder-page">
-              <div class="placeholder-icon">
-                <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>
-              </div>
-              <h3>Sales Whisper</h3>
-              <p>AI listens to your live call, understands the context in real time, and silently surfaces suggested responses, competitor rebuttals, and offer prompts — without the customer hearing.</p>
-              <div class="placeholder-tag">In Roadmap · Next Phase (6 – 12 months)</div>
-            </div>
-          </div>
-        </div>
-      </div>
- 
       <div id="page-scorecard" class="page" style="display: none;">
         <div class="page-hdr">
-          <div class="page-hdr-eyebrow">Performance · Agent View</div>
-          <h2>Scorecard</h2>
-          <p>Your personal performance metrics for the current period. Updated daily.</p>
+          <div class="page-hdr-eyebrow">Performance · Competitive Intelligence</div>
+          <h2>Monthly Battle Card</h2>
+          <p>UK Mobile Network Competitive Intelligence Report — June 2026 · Vodafone Internal Use</p>
         </div>
         <div class="page-scroll">
           <div class="content">
-            <div class="sec-label">This Month — July 2026</div>
-            <div class="score-grid">
-              <div class="score-card"><div class="score-val good">73%</div><div class="score-lbl">Conversion Rate</div><div class="score-delta up">+6% vs last month</div></div>
-              <div class="score-card"><div class="score-val">142</div><div class="score-lbl">Calls Handled</div><div class="score-delta up">+12 vs last month</div></div>
-              <div class="score-card"><div class="score-val warn">4.2</div><div class="score-lbl">Avg Handle Time (min)</div><div class="score-delta down">+0.3 vs target</div></div>
-              <div class="score-card"><div class="score-val good">91%</div><div class="score-lbl">Compliance Score</div><div class="score-delta up">+3% vs last month</div></div>
-              <div class="score-card"><div class="score-val good">4.6</div><div class="score-lbl">CSAT Score (out of 5)</div><div class="score-delta up">+0.2 vs last month</div></div>
-              <div class="score-card"><div class="score-val warn">38%</div><div class="score-lbl">Objection Win Rate</div><div class="score-delta down">−4% vs last month</div></div>
+            <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:20px;">Sources: Umlaut Connect 2026, RootMetrics H2 2025, Ofcom Connected Nations 2025, OpenSignal January 2026, BT Annual Report 2026, Official Operator Newsrooms, Gartner MQ 2026</p>
+
+            <div class="sec-label">Executive Summary</div>
+            <div class="vision-card" style="margin-bottom:20px;">
+              <ul style="padding-left:18px;display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--text-mid);line-height:1.65;">
+                <li><strong style="color:var(--text-dark);">Market Structure Shift:</strong> Following the May 2025 merger of Vodafone UK and Three UK, VodafoneThree is now the UK's largest operator (~28.6M customers), structurally transforming the competitive landscape.</li>
+                <li><strong style="color:var(--text-dark);">EE (BT) Benchmark:</strong> EE remains the entrenched network quality benchmark, securing RootMetrics and Umlaut #1 rankings for the 12th consecutive year and heavily targeting enterprise with fixed-mobile SLA convergence.</li>
+                <li><strong style="color:var(--text-dark);">VMO2 Momentum:</strong> Virgin Media O2 is the fastest-improving competitor ("Most Improved in Europe" — Umlaut 2026), leveraging its ~30% market-leading spectrum share to deliver the widest 5G SA population coverage (87%).</li>
+                <li><strong style="color:var(--text-dark);">Vodafone Enterprise Leadership:</strong> Vodafone dominates enterprise innovation, backed by a £11B decade-long investment, Gartner MQ Leader status in Private Networks, commercial 5G+ Slicing, and impending AST SpaceMobile beta trials.</li>
+              </ul>
             </div>
- 
-            <div class="sec-label">Top Objections This Month</div>
-            <div class="table-card">
+
+            <div class="sec-label">Competitive Snapshot</div>
+            <div class="table-card" style="overflow-x:auto;">
               <table>
-                <thead><tr><th>Objection Type</th><th>Times Encountered</th><th>Win Rate</th><th>Trend</th></tr></thead>
+                <thead><tr><th>Dimension</th><th>Vodafone</th><th>EE (BT)</th><th>Virgin Media O2</th><th>O2</th></tr></thead>
                 <tbody>
-                  <tr><td>Price / Too Expensive</td><td>34</td><td><span class="score-delta warn">41%</span></td><td><span class="score-delta down">Declining</span></td></tr>
-                  <tr><td>Network Quality (EE)</td><td>22</td><td><span class="score-delta up">68%</span></td><td><span class="score-delta up">Improving</span></td></tr>
-                  <tr><td>Competitor Price (O2)</td><td>18</td><td><span class="score-delta up">55%</span></td><td><span class="score-delta up">Stable</span></td></tr>
-                  <tr><td>Bad Past Experience</td><td>11</td><td><span class="score-delta down">27%</span></td><td><span class="score-delta down">Needs Work</span></td></tr>
-                  <tr><td>I'll Think About It</td><td>29</td><td><span class="score-delta warn">44%</span></td><td><span class="score-delta warn">Stable</span></td></tr>
+                  <tr><td><strong>Positioning</strong></td><td>Scale + Innovation. UK's largest combined network post-merger.</td><td>Quality Leader. Premium performance 12 years running.</td><td>Rapid Improver. Wide 5G SA + Cloud network evolution.</td><td>Coverage + Value. Strong consumer and SMB focus.</td></tr>
+                  <tr><td><strong>Investment</strong></td><td>£11B over 10 years (Europe's largest private network build).</td><td>£5B+ BT Group annually across fixed and mobile infra.</td><td>£700M in 2026 + £343M for new spectrum.</td><td>Shared VMO2 mobile budget. No separate figure.</td></tr>
+                  <tr><td><strong>Enterprise Strength</strong></td><td>Gartner MQ Leader (Private Networks). Commercial 5G Slicing.</td><td>Private 5G. Fixed+Mobile combined enterprise SLAs.</td><td>Business 5G SA SLAs. Cloud core scale.</td><td>5G SA in 500+ towns. Less mature enterprise SLA depth.</td></tr>
+                  <tr><td><strong>Key Risk to VF</strong></td><td>N/A</td><td>RootMetrics/Umlaut record scores. Openreach backhaul advantage.</td><td>Largest spectrum holding (~30%). Widest 5G SA footprint.</td><td>uSwitch Consumer Coverage wins. Aggressive pricing.</td></tr>
+                  <tr><td><strong>Signature Proof Point</strong></td><td>TM Forum Catalyst ×3 + Commercial Slicing (UK First).</td><td>#1 UK Network 25 times total. Umlaut 900+ score.</td><td>Umlaut "Most Improved in Europe" 2026.</td><td>O2 Satellite — first UK direct-to-device.</td></tr>
                 </tbody>
               </table>
             </div>
- 
-            <div class="sec-label">Coach Recommendations</div>
-            <div class="vision-card" style="border-left-color:var(--next);">
-              <h3>Focus Areas This Month</h3>
-              <p style="margin-bottom:12px;">Based on your call data, your coach has identified two priority areas:</p>
-              <ul style="padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text-mid);">
-                <li><strong style="color:var(--text-dark);">Bad Past Experience handling</strong> — Your win rate is 27%, well below the team average of 48%. The Acknowledge, Clarify, Respond technique is recommended. Practice available in Sales Simulation.</li>
-                <li><strong style="color:var(--text-dark);">Closing on Price objections</strong> — You're encountering this most frequently but winning only 41%. Focus on the Reframe and Compare technique — shift from defending price to total value comparison.</li>
+
+            <div class="sec-label">Sales Battlecard Priorities</div>
+            <div class="battlecard-grid">
+              <div class="vision-card" style="margin-bottom:0;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                  <h3 style="margin-bottom:0;">EE (BT)</h3>
+                  <span class="risk-badge high">Threat: High</span>
+                </div>
+                <p style="font-weight:700;font-size:11.5px;color:var(--text-dark);margin-bottom:4px;">Where Vodafone Wins</p>
+                <ul style="padding-left:16px;font-size:12.5px;color:var(--text-mid);line-height:1.6;margin-bottom:10px;">
+                  <li>Gartner MQ Leader in Private Networks (EE not a leader).</li>
+                  <li>Commercial 5G Slicing active (EE in trials).</li>
+                  <li>AST SpaceMobile satellite beta.</li>
+                </ul>
+                <p style="font-weight:700;font-size:11.5px;color:var(--text-dark);margin-bottom:4px;">Where EE Wins</p>
+                <ul style="padding-left:16px;font-size:12.5px;color:var(--text-mid);line-height:1.6;margin-bottom:10px;">
+                  <li>RootMetrics/Umlaut #1.</li>
+                  <li>700MHz indoor penetration lead.</li>
+                  <li>BT fixed + mobile combined SLAs.</li>
+                </ul>
+                <p style="font-weight:700;font-size:11.5px;color:var(--text-dark);margin-bottom:4px;">Sales Response</p>
+                <ul style="padding-left:16px;font-size:12.5px;color:var(--text-mid);line-height:1.6;">
+                  <li>Lead with Gartner independent enterprise validation.</li>
+                  <li>Contrast our commercial slicing delivery vs EE's trial phase.</li>
+                  <li>Shift focus from generic speed tests to MPN custom SLAs.</li>
+                </ul>
+              </div>
+
+              <div class="vision-card" style="margin-bottom:0;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                  <h3 style="margin-bottom:0;">Virgin Media O2</h3>
+                  <span class="risk-badge medhigh">Threat: Medium-High</span>
+                </div>
+                <p style="font-weight:700;font-size:11.5px;color:var(--text-dark);margin-bottom:4px;">Where Vodafone Wins</p>
+                <ul style="padding-left:16px;font-size:12.5px;color:var(--text-mid);line-height:1.6;margin-bottom:10px;">
+                  <li>Gartner MQ Leader (VMO2 not a leader).</li>
+                  <li>Umlaut overall rank (#2 vs VMO2).</li>
+                  <li>TM Forum Catalyst enterprise awards.</li>
+                </ul>
+                <p style="font-weight:700;font-size:11.5px;color:var(--text-dark);margin-bottom:4px;">Where VMO2 Wins</p>
+                <ul style="padding-left:16px;font-size:12.5px;color:var(--text-mid);line-height:1.6;margin-bottom:10px;">
+                  <li>87% 5G SA population reach.</li>
+                  <li>Largest UK spectrum share (~30%).</li>
+                  <li>First to launch direct-to-device satellite.</li>
+                </ul>
+                <p style="font-weight:700;font-size:11.5px;color:var(--text-dark);margin-bottom:4px;">Sales Response</p>
+                <ul style="padding-left:16px;font-size:12.5px;color:var(--text-mid);line-height:1.6;">
+                  <li>Acknowledge their momentum but highlight our SLA-backed enterprise maturity.</li>
+                  <li>Position £11B decade commitment vs their annual funding cycle.</li>
+                </ul>
+              </div>
+
+              <div class="vision-card" style="margin-bottom:0;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                  <h3 style="margin-bottom:0;">O2</h3>
+                  <span class="risk-badge med">Threat: Medium</span>
+                </div>
+                <p style="font-weight:700;font-size:11.5px;color:var(--text-dark);margin-bottom:4px;">Where Vodafone Wins</p>
+                <ul style="padding-left:16px;font-size:12.5px;color:var(--text-mid);line-height:1.6;margin-bottom:10px;">
+                  <li>Enterprise product depth (MPN, IoT).</li>
+                  <li>Gartner validated throughput/latency SLAs.</li>
+                  <li>Scale of UK's largest customer base.</li>
+                </ul>
+                <p style="font-weight:700;font-size:11.5px;color:var(--text-dark);margin-bottom:4px;">Where O2 Wins</p>
+                <ul style="padding-left:16px;font-size:12.5px;color:var(--text-mid);line-height:1.6;margin-bottom:10px;">
+                  <li>uSwitch Best Network Coverage.</li>
+                  <li>Consumer loyalty (Priority scheme).</li>
+                  <li>Cost-sensitive SMB pricing.</li>
+                </ul>
+                <p style="font-weight:700;font-size:11.5px;color:var(--text-dark);margin-bottom:4px;">Sales Response</p>
+                <ul style="padding-left:16px;font-size:12.5px;color:var(--text-mid);line-height:1.6;">
+                  <li>Position O2 as consumer-first; Vodafone Business as enterprise-built.</li>
+                  <li>Frame SMB TCO around downtime risk without technical SLAs.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="sec-label">Vodafone Takeaways</div>
+            <div class="vision-card" style="border-left-color:var(--now);margin-bottom:20px;">
+              <ul style="padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text-mid);line-height:1.65;">
+                <li><strong style="color:var(--text-dark);">Lead with Independent Enterprise Validation:</strong> Always anchor pitches with Gartner MQ Leader status for Private Networks (2025 & 2026) and TM Forum awards, proving enterprise maturity that competitors lack.</li>
+                <li><strong style="color:var(--text-dark);">Sell Slicing Today:</strong> Emphasize that Vodafone is the only operator with commercial 5G+ Local Slicing in market (since Nov 2025), while EE remains strictly in the trial phase.</li>
+                <li><strong style="color:var(--text-dark);">Leverage Scale & Investment:</strong> Highlight the £11B, 10-year investment commitment. Pitch the combined post-merger VodafoneThree scale (28.6M customers) as Europe's largest privately-funded infrastructure build.</li>
+                <li><strong style="color:var(--text-dark);">Pivot the Quality Conversation:</strong> When faced with EE's RootMetrics dominance, redirect the client focus from generic consumer benchmarking to enterprise-specific KPIs, highlighting Vodafone's customized SLA guarantees on latency, availability, and throughput.</li>
+                <li><strong style="color:var(--text-dark);">Push Future-Proof Connectivity:</strong> Introduce the AST SpaceMobile June 2026 beta as a unique differentiator capable of eliminating physical 'not spots', extending connectivity beyond standard mast reach.</li>
               </ul>
             </div>
+
+            <p style="font-size:10.5px;color:var(--text-muted);line-height:1.6;border-top:1px solid var(--border);padding-top:12px;">
+              <strong>Sources:</strong> Umlaut Connect 2026, RootMetrics H2 2025, Ofcom Connected Nations 2025, OpenSignal January 2026, BT Annual Report 2026, Official Operator Newsrooms (EE, VMO2, VodafoneThree), Gartner Magic Quadrant 4G/5G Private Mobile Networks 2026, Industry Media (Computer Weekly, RCR Wireless, TelecomTV, DCD). Data reflects market intelligence as of June 2026.
+            </p>
           </div>
         </div>
       </div>
- 
+
       <div id="page-dashboard" class="page" style="display: none;">
         <div class="page-hdr">
           <div class="page-hdr-eyebrow">Performance · Manager View</div>
