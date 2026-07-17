@@ -566,7 +566,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; f
         <div class="nav-section-label">Performance</div>
         <button class="nav-item" onclick="showPage('scorecard', this)">
           <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></span>
-          Monthly Battle Card
+          Battle Card
         </button>
         <button class="nav-item" onclick="showPage('dashboard', this)">
           <span class="nav-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></span>
@@ -807,11 +807,46 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; f
       <div id="page-scorecard" class="page" style="display: none;">
         <div class="page-hdr">
           <div class="page-hdr-eyebrow">Performance · Competitive Intelligence</div>
-          <h2>Monthly Battle Card</h2>
+          <h2>Battle Card</h2>
           <p>UK Mobile Network Competitive Intelligence Report — June 2026 · Vodafone Internal Use</p>
         </div>
         <div class="page-scroll">
           <div class="content">
+            <div class="sec-label">Custom Battle Card</div>
+            <div class="vision-card" id="customBcPanel" style="margin-bottom:24px;">
+              <div id="customBcIntro">
+                <h3 style="margin-bottom:6px;">Generate a customer-specific battle card</h3>
+                <p style="margin-bottom:14px;">Enter a customer name and the Vodafone product you're pitching — we'll research live and build a tailored comparison vs EE, VMO2 and O2 on variety, tariffs, and coverage.</p>
+                <button class="sim-btn sim-btn-primary" onclick="toggleCustomBcForm()">Custom Battle Card</button>
+              </div>
+              <div id="customBcForm" style="display:none;margin-top:14px;">
+                <div class="sim-field"><label for="customBcCustomer">Customer name</label>
+                  <input type="text" id="customBcCustomer" placeholder="e.g. Sarah Jenkins, or Acme Logistics Ltd">
+                </div>
+                <div class="sim-field"><label for="customBcProduct">Vodafone product</label>
+                  <select id="customBcProduct">
+                    <option value="">Select a product</option>
+                    <option>SIM-only plan</option>
+                    <option>Handset upgrade</option>
+                    <option>Broadband + mobile bundle</option>
+                    <option>Family / multi-line plan</option>
+                    <option>Add-on: device insurance & entertainment</option>
+                  </select>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <button class="sim-btn sim-btn-primary" onclick="generateCustomBattleCard()">Generate battle card →</button>
+                  <button class="sim-btn sim-btn-ghost" onclick="toggleCustomBcForm()">Cancel</button>
+                </div>
+              </div>
+              <div id="customBcLoading" style="display:none;text-align:center;padding:24px 0;">
+                <div class="sim-ring" style="margin:0 auto 12px;"></div>
+                <div style="font-size:13px;color:var(--text-light);">Researching customer & comparing tariffs...</div>
+              </div>
+              <div id="customBcError"></div>
+            </div>
+            <div id="customBcResult"></div>
+
+            <div class="sec-label">This Month's Report</div>
             <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:20px;">Sources: Umlaut Connect 2026, RootMetrics H2 2025, Ofcom Connected Nations 2025, OpenSignal January 2026, BT Annual Report 2026, Official Operator Newsrooms, Gartner MQ 2026</p>
 
             <div class="sec-label">Executive Summary</div>
@@ -1326,6 +1361,85 @@ function renderSimBrief(company, offer, brief) {
       <div class="sim-dossier-row"><div class="sdk">Suggested opening line</div><div class="sdv" style="font-style:italic;">"${brief.talking_point||''}"</div></div>
       ${brief.confidence_note?`<div class="sim-dossier-row"><div class="sdk">Note</div><div class="sdv" style="color:var(--text-light);font-size:12.5px;">${brief.confidence_note}</div></div>`:''}
     </div>`;
+}
+
+function toggleCustomBcForm() {
+  const form = document.getElementById('customBcForm');
+  const intro = document.getElementById('customBcIntro');
+  const showingForm = form.style.display === 'none';
+  form.style.display = showingForm ? 'block' : 'none';
+  intro.style.display = showingForm ? 'none' : 'block';
+}
+
+async function generateCustomBattleCard() {
+  const customer = document.getElementById('customBcCustomer').value.trim();
+  const product = document.getElementById('customBcProduct').value;
+  if (!customer || !product) { alert('Add a customer name and select a Vodafone product.'); return; }
+
+  document.getElementById('customBcForm').style.display = 'none';
+  document.getElementById('customBcIntro').style.display = 'none';
+  document.getElementById('customBcLoading').style.display = 'block';
+  document.getElementById('customBcError').innerHTML = '';
+  document.getElementById('customBcResult').innerHTML = '';
+
+  try {
+    const system = `You are a competitive intelligence analyst for Vodafone UK sales teams. Return ONLY valid JSON, no markdown fences, no preamble. Be concise, factual, and current, using web search for up-to-date tariffs and coverage claims. If unsure about a detail, say so plainly rather than inventing it.`;
+    const userMsg = `Customer: ${customer}\nVodafone product being pitched: ${product}\n\nResearch current UK mobile market data using web search and return JSON with this exact shape:\n{\n  "customer_summary": "1-2 sentences framing this customer's likely priorities based on their name/context",\n  "recommended_positioning": "1-2 sentences on how to position ${product} to this specific customer",\n  "comparison": [\n    {"dimension": "Plan Variety", "vodafone": "...", "ee": "...", "vmo2": "...", "o2": "..."},\n    {"dimension": "Tariffs & Pricing", "vodafone": "...", "ee": "...", "vmo2": "...", "o2": "..."},\n    {"dimension": "Network Coverage", "vodafone": "...", "ee": "...", "vmo2": "...", "o2": "..."},\n    {"dimension": "Value-Adds", "vodafone": "...", "ee": "...", "vmo2": "...", "o2": "..."}\n  ],\n  "talking_points": ["2-3 sharp talking points tailored to this customer and product"],\n  "objection_prep": ["2-3 likely objections this customer could raise, each with a short counter"]\n}`;
+    const raw = await callSimClaude({ system, messages:[{role:'user', content:userMsg}], tools:[{type:"web_search_20250305", name:"web_search"}], maxTokens:1600 });
+    const bc = extractSimJson(raw);
+    renderCustomBattleCard(customer, product, bc);
+  } catch (e) {
+    document.getElementById('customBcError').innerHTML = `<div class="sim-err">Couldn't generate the battle card (${e.message}). Try again.</div>`;
+    document.getElementById('customBcIntro').style.display = 'block';
+  } finally {
+    document.getElementById('customBcLoading').style.display = 'none';
+  }
+}
+
+function renderCustomBattleCard(customer, product, bc) {
+  const rows = (bc.comparison||[]).map(r => `
+    <tr><td><strong>${escHtml(r.dimension||'')}</strong></td><td>${escHtml(r.vodafone||'')}</td><td>${escHtml(r.ee||'')}</td><td>${escHtml(r.vmo2||'')}</td><td>${escHtml(r.o2||'')}</td></tr>
+  `).join('');
+  document.getElementById('customBcResult').innerHTML = `
+    <div class="sec-label">Custom Battle Card — ${escHtml(customer)}</div>
+    <div class="vision-card" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <h3 style="margin-bottom:0;">${escHtml(customer)} · ${escHtml(product)}</h3>
+        <button class="sim-btn sim-btn-ghost" onclick="resetCustomBattleCard()" style="font-size:11px;padding:6px 12px;">New custom battle card</button>
+      </div>
+      <p style="margin-bottom:8px;">${escHtml(bc.customer_summary||'')}</p>
+      <p style="font-weight:700;font-size:12px;color:var(--text-dark);margin-bottom:4px;">Recommended positioning</p>
+      <p>${escHtml(bc.recommended_positioning||'')}</p>
+    </div>
+    <div class="table-card" style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>Dimension</th><th>Vodafone</th><th>EE (BT)</th><th>Virgin Media O2</th><th>O2</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div class="battlecard-grid" style="grid-template-columns:1fr 1fr;margin-top:20px;">
+      <div class="vision-card" style="margin-bottom:0;">
+        <h3>Talking Points</h3>
+        <ul style="padding-left:16px;font-size:12.5px;color:var(--text-mid);line-height:1.65;">
+          ${(bc.talking_points||[]).map(x=>`<li>${escHtml(x)}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="vision-card" style="margin-bottom:0;">
+        <h3>Objection Prep</h3>
+        <ul style="padding-left:16px;font-size:12.5px;color:var(--text-mid);line-height:1.65;">
+          ${(bc.objection_prep||[]).map(x=>`<li>${escHtml(x)}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+function resetCustomBattleCard() {
+  document.getElementById('customBcResult').innerHTML = '';
+  document.getElementById('customBcCustomer').value = '';
+  document.getElementById('customBcProduct').value = '';
+  document.getElementById('customBcIntro').style.display = 'block';
+  document.getElementById('customBcForm').style.display = 'none';
 }
 
 function buildSimCustomerPrompt() {
